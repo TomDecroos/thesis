@@ -3,18 +3,24 @@ Created on 9 Nov 2015
 
 @author: Tom
 '''
-import numpy as np
-from sklearn.linear_model.logistic import LogisticRegression
-from sklearn.svm import SVC
-from exp_goal_model.features import get_distance_to_goal, Features
+
+
+
+
 from random import random
-from nltk.classify.svm import SvmClassifier
+
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.ensemble.forest import RandomForestClassifier
+from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors.regression import KNeighborsRegressor
-from sklearn.calibration import CalibratedClassifierCV
-from sklearn.cross_validation import cross_val_predict, StratifiedKFold, KFold
+from sklearn.svm import SVC
 from sklearn.svm.classes import LinearSVC
-from sklearn.ensemble.forest import RandomForestClassifier
+
+from exp_goals_model.features import Features
+import numpy as np
+
 
 class ExpGModel:
 

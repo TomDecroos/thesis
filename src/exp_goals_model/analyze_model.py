@@ -3,21 +3,25 @@ Created on 9 Nov 2015
 
 @author: Tom
 '''
-from exp_goal_model.db_reader import DBReader,Shot
-from exp_goal_model.expGmodel import LogitDistance, Average, SVM, NaiveBayes, KNN,\
-    LinearSVM, RandomForest
-from exp_goal_model.cluster import get_kmeans_clusters
-import matplotlib.pyplot as plt
-from exp_goal_model.features import get_distance_to_goal, get_goal_angle,\
-    featuremap, Features
-from exp_goal_model.ols_analysis import plot_linreg
+import warnings
+
 from matplotlib.animation import FuncAnimation
-import numpy as np
 from sklearn.calibration import calibration_curve
 from sklearn.metrics.classification import brier_score_loss, log_loss, f1_score
 from sklearn.metrics.ranking import roc_auc_score, average_precision_score
 from sklearn.metrics.regression import r2_score
-import warnings
+
+from exp_goals_model.db_reader import DBReader, Shot
+from exp_goals_model.expGmodel import LogitDistance, Average, SVM, NaiveBayes, KNN, \
+    LinearSVM, RandomForest
+from exp_goals_model.features import get_distance_to_goal, get_goal_angle, \
+    featuremap, Features
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+#from exp_goals_model.ols_analysis import plot_linreg
+#from exp_goals_model.cluster import get_kmeans_clusters
 warnings.filterwarnings("ignore")
 
 def plot_cluster_distance(k,shots,ax):
@@ -188,11 +192,12 @@ def compare_scores(scores1,scores2):
     [print(n + ": " + str(-d)) for n,d in zip(scorenames,scores_diff) if d < 0]          
     print("#####################")
 
-f=Features(["distance","angle","surface"])
+f=Features(["distance",'angle','surface'])
 model1 = RandomForest(features=f,calibration=False)
 model2 = RandomForest(features=f,calibration=True)
 #compare_models(model1, model2,cross=True)
-#model = LogitDistance(features=f,calibration=True)
-#model_summary(model1)
+model = LogitDistance(features=f,calibration=False)
+model = Average()
+model_summary(model)
 
 plt.show()
