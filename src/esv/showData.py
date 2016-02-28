@@ -4,11 +4,14 @@ Created on 25 Nov 2015
 @author: Temp
 '''
 
-import matplotlib.pyplot as plt
-from expGoals.readShotFeaturesTable import get_features 
-from scipy.misc import imread
 import pickle
+
+from scipy.misc import imread
+
+from db.readShotFeaturesTable import get_features 
+import matplotlib.pyplot as plt
 import numpy as np
+
 
 def plot_shots(shots):
     limits = [-5750,5750,-3600,3600];

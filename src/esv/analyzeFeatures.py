@@ -3,9 +3,10 @@ Created on 17 Dec 2015
 
 @author: Temp
 '''
-import numpy as np
-from expGoals.readShotFeaturesTable import get_features,get_results
+from db.readShotFeaturesTable import get_features, get_results
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def plot_feature_hist(x,y,feature,ax,type = 'real',normed = False):
     unsuccessful = [x for x,y in zip(x,y) if y == 0]

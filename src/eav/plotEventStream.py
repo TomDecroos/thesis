@@ -4,12 +4,14 @@ Created on 10 Feb 2016
 @author: Temp
 '''
 import sqlite3
-import numpy as np
-import matplotlib.pyplot as plt
+
 from matplotlib.image import imread
-import matplotlib.animation as animation
-import eav.interpolation as ip
+
 from eav.constants import Constant as C
+import eav.interpolation as ip
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 dbfile = '../prozone.db'

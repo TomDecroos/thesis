@@ -4,13 +4,16 @@ Created on 16 Feb 2016
 @author: Temp
 '''
 
+from matplotlib.image import imread
+import nltk
+
+from db.prozoneDB import DB
 from eav.constants import Constant as C
-import sqlite3
 import eav.interpolation as ip
 import matplotlib.pyplot as plt
 import numpy as np
-import nltk
-from matplotlib.image import imread
+c = DB.c
+
 
 class Event():
     def __init__(self,tup):
@@ -124,15 +127,15 @@ class MatchHalf:
         else:
             raise Exception("Teamhalf of teamid " + str(teamid) + " could not be determined, position: " + str(xs))
        
-def getAllWindows(start=None,end=None):
-    dbfile = '../prozone.db'
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    windows = []
-    windowsize = int((C.FEATURE_WINDOW_SIZE+C.CLASS_WINDOW_SIZE)/C.EVENT_INTERVAL)
+def getAllWindows(start=None,end=None):    
     matchids = c.execute("select id from match").fetchall()
     if start is not None and end is not None :
         matchids = matchids[start:end]
+    return getWindows(matchids)
+
+def getWindows(matchids):
+    windows = []
+    windowsize = int((C.FEATURE_WINDOW_SIZE+C.CLASS_WINDOW_SIZE)/C.EVENT_INTERVAL)
     for (matchid,) in matchids:
         print(matchid)
         for half in [1,2]:
@@ -157,7 +160,7 @@ if __name__ == '__main__':
         #print(window.get_dominating_team())
         if window.is_goal():
             print(window.to_string())
-            fig, ax = plt.subplots(2)
-            window.plot(ax[0])
+            #fig, ax = plt.subplots()
+            window.plot()
             plt.show()
             break

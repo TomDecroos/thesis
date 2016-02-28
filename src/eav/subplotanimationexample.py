@@ -1,6 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 def data_gen():
     t = data_gen.t

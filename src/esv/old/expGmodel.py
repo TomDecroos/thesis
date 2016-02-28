@@ -17,8 +17,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors.regression import KNeighborsRegressor
 from sklearn.svm import SVC
 from sklearn.svm.classes import LinearSVC
-import numpy as np
+
 from expGoals.features import Features
+import numpy as np
 
 
 class ExpGModel:

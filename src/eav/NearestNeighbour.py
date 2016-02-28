@@ -7,7 +7,7 @@ from eav.dtw import dtw
 from eav.constants import Constant as C
 from sqlalchemy.testing.exclusions import Predicate
 from eav.window import getAllWindows
-import expGoals.logger as logger
+import tools.logger as logger
 from xlwt.antlr import ifelse
 import matplotlib.pyplot as plt
 import numpy as np

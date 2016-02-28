@@ -3,9 +3,9 @@ Created on 10 Feb 2016
 
 @author: Temp
 '''
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def update_line(num, data, line):

@@ -19,21 +19,21 @@ class ShotReader:
         qry = "select locationx,locationy from event where eventname='Shot on target' or eventname = 'Shot not on target'"
         return [id for (id,) in self.c.execute(qry)]
     
-    def get_mhn(self,rowid):
-        ''' Return a tuple containing the match id, the half id and the nb
+    def get_mhnt(self,rowid):
+        ''' Return a tuple containing the match id, the half id and the nb and the time
             which uniquely identifies the event of the given rowid.'''
         
-        qry = "select matchid,halfid,eventnb from event where rowid = ?"
+        qry = "select matchid,halfid,eventnb,eventtime from event where rowid = ?"
         return self.c.execute(qry,(rowid,)).fetchone()
                               
     def is_goal(self,rowid):
-        match,half,nb = self.get_mhn(rowid)
+        match,half,nb,time = self.get_mhnt(rowid)
         qry = """select eventname from event
                 where matchid = ?
                 and halfid = ?
-                and eventnb > ?
-                and eventnb < ? + 10""" 
-        for (eventname,) in self.c.execute(qry,(match,half,nb,nb)):
+                and eventtime > ?
+                and eventtime < ? + 3000""" 
+        for (eventname,) in self.c.execute(qry,(match,half,time,time)):
             if eventname == "Goal":
                 return 1
             if eventname == "Shot on target" or eventname == "Shot not on target":
@@ -84,3 +84,10 @@ class Event():
         self.time = time
         self.x = x
         self.y = y
+        
+
+if __name__ == '__main__':
+    r = ShotReader()
+    shotids = r.get_shot_ids()
+    print(sum([r.is_goal(rowid) for rowid in shotids]))
+    

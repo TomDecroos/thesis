@@ -1,6 +1,8 @@
+from statistics import mean, stdev
+
 from scipy.stats.morestats import binom_test
 from sklearn.cluster import KMeans
-from statistics import mean,stdev
+
 
 def get_kmeans_clusters(k, shots):
     cluster_indexes = KMeans(k,random_state=0).fit_predict([[shot.pred] for shot in shots])

@@ -3,18 +3,20 @@ Created on 9 Nov 2015
 
 @author: Tom
 '''
+import math
 import warnings
 
 from sklearn.calibration import calibration_curve
 from sklearn.metrics.classification import brier_score_loss, log_loss
 from sklearn.metrics.ranking import roc_auc_score, average_precision_score
 from sklearn.metrics.regression import r2_score
-import matplotlib.pyplot as plt
-from expGoals.old.features import Features, featuremap
-from expGoals.old.expGmodel import Logit, LinearSVM, Average
+
 from expGoals.old.db_reader import DBReader
-import math
+from expGoals.old.expGmodel import Logit, LinearSVM, Average
+from expGoals.old.features import Features, featuremap
+import matplotlib.pyplot as plt
 import numpy as np
+
 
 warnings.filterwarnings("ignore")
 

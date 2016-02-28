@@ -3,10 +3,12 @@ Created on 19 Oct 2015
 
 @author: Temp
 '''
-import sqlite3
-import xml.etree.ElementTree as ET
 import os
+import sqlite3
 import time
+
+import xml.etree.ElementTree as ET
+
 
 DBFILE = 'prozone.db'
 

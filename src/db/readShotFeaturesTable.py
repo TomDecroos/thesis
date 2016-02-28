@@ -6,6 +6,7 @@ Created on 2 Dec 2015
 
 import sqlite3
 
+
 dbfile = '../prozone.db'
 conn = sqlite3.connect(dbfile)
 c = conn.cursor()

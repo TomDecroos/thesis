@@ -3,10 +3,12 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-from sklearn.cross_validation import StratifiedKFold
-import numpy as np
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.cross_validation import StratifiedKFold
 from sklearn.linear_model.base import LinearRegression
+
+import numpy as np
+
 
 class Model:
     def fit(self,X,y):

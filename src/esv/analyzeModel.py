@@ -5,7 +5,7 @@ Created on 2 Dec 2015
 '''
 from expGoals.model import SKLearnModel
 from sklearn.linear_model.logistic import LogisticRegression
-from expGoals.readShotFeaturesTable import get_features, get_results
+from db.readShotFeaturesTable import get_features, get_results
 from sklearn.svm.classes import LinearSVC, SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble.forest import RandomForestClassifier,\
@@ -24,7 +24,8 @@ import warnings
 
 from sklearn.calibration import calibration_curve
 from sklearn.metrics.classification import brier_score_loss, log_loss
-from sklearn.metrics.ranking import roc_auc_score, average_precision_score
+from sklearn.metrics.ranking import roc_auc_score, average_precision_score,\
+    roc_curve
 from sklearn.metrics.regression import r2_score
 import matplotlib.pyplot as plt
 import math
@@ -68,6 +69,15 @@ def get_scores(y_true,y_pred):
     r2score = r2_score(y_true,y_pred)
     return math.sqrt(brier_score),log_score,roc_score,pr_score,r2score
 
+def plot_roc_curve(y_true,y_pred,y_pred2=None):
+    a,b,_thresholds = roc_curve(y_true,y_pred)
+    plt.plot(a,b,c="green",label="model 1")
+    if y_pred2 is not None:
+        x,y,_thresholds = roc_curve(y_true,y_pred2)
+        plt.plot(x,y,c="purple",label="model 2")
+    plt.legend(loc=4)
+    plt.show()
+    
 def print_scores(scores):
     brier_score,log_score,roc_score,pr_score,r2score = scores
     print ("##### Lower is better #####")

@@ -3,10 +3,12 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-from expGoals.readShots import ShotReader
 import sqlite3
-import expGoals.logger as logger
-import expGoals.features as f
+
+import esv.features as f
+import tools.logger as logger
+from expGoals.readShots import ShotReader
+
 
 dbfile = '../prozone.db'
 conn = sqlite3.connect(dbfile)

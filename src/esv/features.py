@@ -3,8 +3,9 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-from math import sqrt,acos,atan2
+from math import sqrt, acos, atan2
 from random import random
+
 
 class Point:
     def __init__(self,x,y):

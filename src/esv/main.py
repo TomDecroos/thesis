@@ -3,18 +3,20 @@ Created on 3 Dec 2015
 
 @author: Temp
 '''
+from sklearn.ensemble.forest import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors.unsupervised import NearestNeighbors
+from sklearn.svm.classes import LinearSVR, LinearSVC, SVR, SVC
+from sklearn.tree.tree import DecisionTreeClassifier
 
-from expGoals.analyzeModel import plot_model_analysis, print_scores, get_scores,\
-    compare_models
+from expGoals.analyzeModel import plot_model_analysis, print_scores, get_scores, \
+    compare_models, plot_roc_curve
 from expGoals.model import SKLearnModel, SavedSKLearnModel
 from expGoals.readShotFeaturesTable import get_features, get_results
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.svm.classes import LinearSVR, LinearSVC, SVR, SVC
-from sklearn.externals import joblib
-import pickle
-from sklearn.ensemble.forest import RandomForestClassifier, ExtraTreesClassifier
+
 
 def analyze_model(cross=True):
     X = np.array(get_features(f,wo_penalties,only_fcb_shots))
@@ -25,7 +27,8 @@ def analyze_model(cross=True):
         model.fit(X,y)
         prob = model.predict(X)
         
-    plot_model_analysis(X,y,prob,f)
+    #plot_model_analysis(X,y,prob,f)
+    plot_roc_curve(y,prob)
     print_scores(get_scores(y,prob))
     
 
@@ -41,7 +44,8 @@ def comparemodels(cross=True):
         model_alt.fit(X,y)
         prob = model.predict(X)
         prob_alt = model.predict(X)
-    compare_models(X, y, prob, prob_alt, f, f_plot=True)
+    #compare_models(X, y, prob, prob_alt, f, f_plot=True)
+    plot_roc_curve(y, prob, prob_alt)
 
 
 f = [
@@ -50,21 +54,24 @@ f = [
 "distance",
 "angle",
 "surface",
-"random",
+#"random",
 "nbofpassesinphase",
 "NbOfEventsInPhase",
 "NbOfPassesInTimewindow",
 "NbOfEventsInTimewindow",
 "SpeedInTimewindow",
 "AngleInTimewindow"
-] 
+]
+
 wo_penalties,only_fcb_shots = True,False
-model = SKLearnModel(lambda : RandomForestClassifier(1000),calibration=True)
-analyze_model(cross=False)
+model = SKLearnModel(lambda : ExtraTreesClassifier(10),calibration=False)
+#model = SKLearnModel(LogisticRegression,calibration=True)
+model_alt = SKLearnModel(lambda : DecisionTreeClassifier(),calibration=False)
+#analyze_model(cross=True)
 
 f_alt = f
-model_alt = SKLearnModel(SVC,calibration=True)
+#model_alt = SKLearnModel(SVC,calibration=True)
 
-#comparemodels(cross=True)
-pickle.dump(SavedSKLearnModel(model),open('model.pkl','wb'))
-plt.show()
+comparemodels(cross=True)
+#pickle.dump(SavedSKLearnModel(model),open('model.pkl','wb'))
+#plt.show()

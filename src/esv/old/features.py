@@ -3,9 +3,11 @@ Created on 7 Nov 2015
 
 @author: Temp
 '''
-from math import sqrt,acos
+from math import sqrt, acos
 from random import random
+
 from scipy import sort
+
 
 class Point:
     def __init__(self,x,y):
@@ -41,6 +43,8 @@ def get_goal_surface(shot):
     a = point.get_vector(goal_left)
     b = point.get_vector(goal_right)
     return 1/2 * abs(a.x*b.y - b.x*a.y)
+def get_passes(shot):
+    return len([1 for phase_event in shot.phase_events if phase_event.name == 'Pass'])
 
 def featuremap():
     return {"distance" : get_distance_to_goal,
@@ -50,7 +54,10 @@ def featuremap():
 
 def get_random(shot):
     return random()
-    
+
+def is_penalty(shot):
+    return abs(shot.x) == 4150 and shot.y == 0
+
 class Features:
     def __init__(self,names=sort(list(featuremap().keys()))):
         self.names = names

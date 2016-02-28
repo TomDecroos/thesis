@@ -4,9 +4,12 @@ Created on 16 Feb 2016
 @author: Temp
 '''
 
-import numpy as np
 import time
+
 from eav.dtw import dtw
+import numpy as np
+
+
 class Constant:
     FEATURE_WINDOW_SIZE = 10 #seconds
     CLASS_WINDOW_SIZE = 5 #seconds
