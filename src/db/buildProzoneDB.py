@@ -10,7 +10,7 @@ import time
 import xml.etree.ElementTree as ET
 
 
-DBFILE = 'prozone.db'
+DBFILE = '../prozone.db'
 
 os.remove(DBFILE)
 conn = sqlite3.connect(DBFILE)
@@ -263,8 +263,8 @@ def insert_tracking(match):
 def insert_all_data():
     t = time.time()
     for folder in ['no-tracking','tracking']:
-        for file in os.listdir(folder):
-            insert_data(folder + "/" + file)
+        for file in os.listdir("../" + folder):
+            insert_data("../" + folder + "/" + file)
             print(folder + '/' + file, "sucessfully added to", DBFILE + '.',
                   str(time.time() -t) + 's', 'elapsed')
 

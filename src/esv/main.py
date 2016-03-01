@@ -10,10 +10,10 @@ from sklearn.neighbors.unsupervised import NearestNeighbors
 from sklearn.svm.classes import LinearSVR, LinearSVC, SVR, SVC
 from sklearn.tree.tree import DecisionTreeClassifier
 
-from expGoals.analyzeModel import plot_model_analysis, print_scores, get_scores, \
+from esv.analyzeModel import plot_model_analysis, print_scores, get_scores, \
     compare_models, plot_roc_curve
-from expGoals.model import SKLearnModel, SavedSKLearnModel
-from expGoals.readShotFeaturesTable import get_features, get_results
+from esv.model import SKLearnModel, SavedSKLearnModel
+from db.readShotFeaturesTable import get_features, get_results
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -73,5 +73,5 @@ f_alt = f
 #model_alt = SKLearnModel(SVC,calibration=True)
 
 comparemodels(cross=True)
-#pickle.dump(SavedSKLearnModel(model),open('model.pkl','wb'))
-#plt.show()
+pickle.dump(SavedSKLearnModel(model),open('model.pkl','wb'))
+plt.show()

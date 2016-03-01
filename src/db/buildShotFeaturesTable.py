@@ -7,7 +7,7 @@ import sqlite3
 
 import esv.features as f
 import tools.logger as logger
-from expGoals.readShots import ShotReader
+from db.readShots import ShotReader
 
 
 dbfile = '../prozone.db'

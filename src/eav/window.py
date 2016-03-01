@@ -8,7 +8,7 @@ from matplotlib.image import imread
 import nltk
 
 from db.prozoneDB import DB
-from eav.constants import Constant as C
+from tools.constants import Constant as C
 import eav.interpolation as ip
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,9 +24,11 @@ class Event():
         self.team = tup[4]
         self.actor = tup[5]
         self.position = tup[6]
+        self.time=tup[7]
     
     def to_tuple(self):
-        return self.x,self.y,self.event,self.duel,self.team,self.actor,self.position
+        return  self.x,self.y,self.event,self.duel,\
+                self.team,self.actor,self.position,self.time
 
 
 class Window():
@@ -39,6 +41,7 @@ class Window():
         self.team = [t.team for t in eventstream]
         self.actor = [t.actor for t in eventstream]
         self.position = [t.position for t in eventstream]
+        self.time = [t.time for t in eventstream]
         self.matchhalf = matchhalf
     
     def is_shot(self):
@@ -59,12 +62,17 @@ class Window():
                 return 1
             
         return 0
+    def get_time(self):
+        return self.time[0]
+    
     def get_left_to_right_x(self):
         if self.get_dominating_team() == self.matchhalf.right:
             #print("hooray")
             return [-a for a in self.x]
         else:
             return self.x
+    def is_wrong_direction(self):
+        return self.get_dominating_team() == self.matchhalf.right
         
     def get_dominating_team(self):
         teams = [t for t in self.team[0:C.CLASS_START] if t is not None]
@@ -82,10 +90,12 @@ class Window():
     
     def plot(self,ax=None,events=True,figure=True,lefttoright=False):
         img = imread("../soccerfield.png")
-        if lefttoright:
-            x = self.get_left_to_right_x()
+        if lefttoright and self.is_wrong_direction():
+            x = [-a for a in self.x]
+            y = [-a for a in self.y]
         else:
             x = self.x
+            y = self.y
         if ax is None:
             foo = plt
         else:
@@ -94,8 +104,8 @@ class Window():
         foo.axis(C.LIMITS)
         if figure:
             foo.imshow(img, extent = C.LIMITS)
-        foo.plot(x[0:C.CLASS_START], self.y[0:C.CLASS_START],c="red")
-        foo.scatter(x[C.CLASS_START:C.CLASS_END], self.y[C.CLASS_START:C.CLASS_END],c="red")
+        foo.plot(x[0:C.CLASS_START], y[0:C.CLASS_START],c="red")
+        foo.scatter(x[C.CLASS_START:C.CLASS_END], y[C.CLASS_START:C.CLASS_END],c="red")
         if events:
             for i,event in enumerate(self.events):
                 foo.annotate(event,(x[i],self.y[i]))
@@ -105,9 +115,11 @@ class Window():
         
 
 class MatchHalf:
-    def __init__(self,matchhalf,hometeamid,awayteamid):
+    def __init__(self,matchid,halfid,matchhalf,hometeamid,awayteamid):
         hometeamhalf = self.getTeamHalf(matchhalf, hometeamid)
         awayteamhalf = self.getTeamHalf(matchhalf, awayteamid)
+        self.matchid = matchid
+        self.halfid = halfid
         if hometeamhalf == awayteamhalf:
             raise Exception("Teamhalves could not be detected")
         elif hometeamhalf == "left":
@@ -131,13 +143,13 @@ def getAllWindows(start=None,end=None):
     matchids = c.execute("select id from match").fetchall()
     if start is not None and end is not None :
         matchids = matchids[start:end]
-    return getWindows(matchids)
+    return getWindows([m for (m,) in matchids])
 
 def getWindows(matchids):
     windows = []
     windowsize = int((C.FEATURE_WINDOW_SIZE+C.CLASS_WINDOW_SIZE)/C.EVENT_INTERVAL)
-    for (matchid,) in matchids:
-        print(matchid)
+    for matchid in matchids:
+        #print(matchid)
         for half in [1,2]:
             rows = c.execute("""select locationx,locationy,eventname,duel,teamid,idactor1,position,eventtime
                         from eventstream where matchid = ? and halfid = ?""",(matchid,half)).fetchall()
@@ -146,7 +158,7 @@ def getWindows(matchids):
             
             hometeamid,awayteamid = c.execute("""select hometeamid,awayteamid
             from match where id = ?""", (matchid,)).fetchone()
-            matchhalf = MatchHalf(eventstream,hometeamid,awayteamid)
+            matchhalf = MatchHalf(matchid,half,eventstream,hometeamid,awayteamid)
             i=0
             while (i < len(eventstream)-windowsize):
                 windows.append(Window(eventstream[i:i+windowsize],matchhalf))
@@ -157,6 +169,7 @@ if __name__ == '__main__':
     windows = getAllWindows(1,3)
     #print(len(windows))
     for window in windows:
+        print(window.time)
         #print(window.get_dominating_team())
         if window.is_goal():
             print(window.to_string())

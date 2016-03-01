@@ -4,7 +4,7 @@ Created on 13 Feb 2016
 @author: Temp
 '''
 import sqlite3
-from expGoals import logger
+from tools import logger
 
 dbfile = '../prozone.db'
 conn = sqlite3.connect(dbfile)

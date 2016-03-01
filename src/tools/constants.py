@@ -12,7 +12,7 @@ import numpy as np
 
 class Constant:
     FEATURE_WINDOW_SIZE = 10 #seconds
-    CLASS_WINDOW_SIZE = 5 #seconds
+    CLASS_WINDOW_SIZE = 10 #seconds
     TIME_UNIT = 0.001 #seconds
     EVENT_INTERVAL = 0.5 #seconds
     WINDOW_INTERVAL = 5 #seconds
