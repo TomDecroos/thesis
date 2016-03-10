@@ -3,7 +3,7 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-from expGoals.model import SKLearnModel
+from esv.model import SKLearnModel
 from sklearn.linear_model.logistic import LogisticRegression
 from db.readShotFeaturesTable import get_features, get_results
 from sklearn.svm.classes import LinearSVC, SVC

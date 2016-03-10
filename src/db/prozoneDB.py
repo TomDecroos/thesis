@@ -7,6 +7,6 @@ import sqlite3
 
 
 class DB:
-    dbfile = '../prozone.db'
+    dbfile = '../../data/prozone.db'
     conn = sqlite3.connect(dbfile)
     c = conn.cursor()

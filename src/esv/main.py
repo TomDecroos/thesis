@@ -16,6 +16,7 @@ from esv.model import SKLearnModel, SavedSKLearnModel
 from db.readShotFeaturesTable import get_features, get_results
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 
 
 def analyze_model(cross=True):
@@ -28,8 +29,8 @@ def analyze_model(cross=True):
         prob = model.predict(X)
         
     #plot_model_analysis(X,y,prob,f)
-    plot_roc_curve(y,prob)
     print_scores(get_scores(y,prob))
+    plot_roc_curve(y,prob)
     
 
 def comparemodels(cross=True):
@@ -47,7 +48,32 @@ def comparemodels(cross=True):
     #compare_models(X, y, prob, prob_alt, f, f_plot=True)
     plot_roc_curve(y, prob, prob_alt)
 
-
+def build_shotclasstable(cross=True):
+    from db.prozoneDB import DB
+    c = DB.c
+    conn = DB.conn
+    
+    idsX = np.array(get_features(["shotid"] + f,wo_penalties,only_fcb_shots))
+    X = idsX[:,1:]
+    y = np.array(get_results(wo_penalties,only_fcb_shots))
+    if cross:
+        prob = model.crosspredict(X,y)
+    else:
+        model.fit(X,y)
+        prob = model.predict(X)
+        
+    c.execute("drop table if exists Shotvalue")
+    c.execute("create table Shotvalue (shotid int,esv real)")
+    for t in zip(idsX[:,0],prob):
+        print(t)
+        c.execute("insert into Shotvalue values (?,?)",t)
+    conn.commit()
+    conn.close()
+    print("Shotclass table succcesfully built")
+    
+    print_scores(get_scores(y,prob))
+    plot_roc_curve(y,prob)
+    
 f = [
 "xcoordinate",
 "ycoordinate",
@@ -63,15 +89,15 @@ f = [
 "AngleInTimewindow"
 ]
 
-wo_penalties,only_fcb_shots = True,False
-model = SKLearnModel(lambda : ExtraTreesClassifier(10),calibration=False)
+wo_penalties,only_fcb_shots = False,False
+model = SKLearnModel(lambda : ExtraTreesClassifier(10000),calibration=False)
 #model = SKLearnModel(LogisticRegression,calibration=True)
-model_alt = SKLearnModel(lambda : DecisionTreeClassifier(),calibration=False)
+#model_alt = SKLearnModel(lambda : DecisionTreeClassifier(),calibration=False)
 #analyze_model(cross=True)
-
-f_alt = f
+build_shotclasstable(cross=True)
+#f_alt = f
 #model_alt = SKLearnModel(SVC,calibration=True)
 
-comparemodels(cross=True)
-pickle.dump(SavedSKLearnModel(model),open('model.pkl','wb'))
+#comparemodels(cross=True)
+pickle.dump(SavedSKLearnModel(model),open('../../data/shotclassifier.pkl','wb'))
 plt.show()

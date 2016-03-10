@@ -3,15 +3,11 @@ Created on 25 Nov 2015
 
 @author: Temp
 '''
-import sqlite3
-import time
-
+from db.prozoneDB import DB
 class ShotReader:
-    dbfile = '../prozone.db'
 
     def __init__(self):
-        conn = sqlite3.connect(self.dbfile)
-        self.c = conn.cursor()
+        self.c = DB.c
     def get_shot_ids(self):
         qry = "select rowid from event where eventname='Shot on target' or eventname = 'Shot not on target'"
         return [id for (id,) in self.c.execute(qry)]

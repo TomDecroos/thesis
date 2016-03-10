@@ -12,36 +12,21 @@ from tools.constants import Constant as C
 import eav.interpolation as ip
 import matplotlib.pyplot as plt
 import numpy as np
+from eav.event import Event
 c = DB.c
-
-
-class Event():
-    def __init__(self,tup):
-        self.x = tup[0]
-        self.y = tup[1]
-        self.event = tup[2]
-        self.duel = tup[3]
-        self.team = tup[4]
-        self.actor = tup[5]
-        self.position = tup[6]
-        self.time=tup[7]
-    
-    def to_tuple(self):
-        return  self.x,self.y,self.event,self.duel,\
-                self.team,self.actor,self.position,self.time
-
 
 class Window():
     
     def __init__(self,eventstream,matchhalf):
         self.x = [t.x for t in eventstream]
         self.y = [t.y for t in eventstream]
-        self.events = [t.event for t in eventstream]
+        self.events = [t.eventname for t in eventstream]
         self.duel = [t.duel for t in eventstream]
         self.team = [t.team for t in eventstream]
         self.actor = [t.actor for t in eventstream]
         self.position = [t.position for t in eventstream]
         self.time = [t.time for t in eventstream]
+        self.eventid = [t.eventid for t in eventstream]
         self.matchhalf = matchhalf
     
     def is_shot(self):
@@ -60,6 +45,17 @@ class Window():
         for event in self.events[C.CLASS_START:C.CLASS_END]:
             if(event == "Goal"):
                 return 1
+            
+        return 0
+    
+    def get_esv(self):
+        eventnames = self.events[C.CLASS_START:C.CLASS_END]
+        ids = self.eventid[C.CLASS_START:C.CLASS_END]
+        for eventname,eventid in zip(eventnames,ids):
+            if(eventname == "Shot on target" or eventname == "Shot not on target"):
+                esv, = c.execute("select esv from shotvalue where shotid = ?",(eventid,))\
+                        .fetchone()
+                return esv
             
         return 0
     def get_time(self):
@@ -87,9 +83,11 @@ class Window():
         print("team " + str(self.team))
         print("actor " + str(self.actor))
         print("position " + str(self.position))
+        print("time:" + str(self.time))
+        print("eventid:" + str(self.eventid))
     
     def plot(self,ax=None,events=True,figure=True,lefttoright=False):
-        img = imread("../soccerfield.png")
+        img = imread("../../data/soccerfield.png")
         if lefttoright and self.is_wrong_direction():
             x = [-a for a in self.x]
             y = [-a for a in self.y]
@@ -137,7 +135,10 @@ class MatchHalf:
         elif x < 0:
             return "left"
         else:
-            raise Exception("Teamhalf of teamid " + str(teamid) + " could not be determined, position: " + str(xs))
+            raise Exception("Teamhalf of teamid "
+                            + str(teamid)
+                            + " could not be determined, position: "
+                            + str(xs))
        
 def getAllWindows(start=None,end=None):    
     matchids = c.execute("select id from match").fetchall()
@@ -151,10 +152,12 @@ def getWindows(matchids):
     for matchid in matchids:
         #print(matchid)
         for half in [1,2]:
-            rows = c.execute("""select locationx,locationy,eventname,duel,teamid,idactor1,position,eventtime
-                        from eventstream where matchid = ? and halfid = ?""",(matchid,half)).fetchall()
-            tuplestream = list(ip.interpolate(rows,C.EVENT_INTERVAL/C.TIME_UNIT))
-            eventstream = [Event(tup) for tup in tuplestream]
+            rows = c.execute("""select locationx,
+            locationy,eventname,duel,teamid,idactor1,position,
+            eventid,eventtime
+            from eventstream where matchid = ? and halfid = ?""",(matchid,half)).fetchall()
+            events = [Event(tup) for tup in rows]
+            eventstream = list(ip.interpolate_eventstream(events,C.EVENT_INTERVAL/C.TIME_UNIT))
             
             hometeamid,awayteamid = c.execute("""select hometeamid,awayteamid
             from match where id = ?""", (matchid,)).fetchone()
@@ -166,14 +169,12 @@ def getWindows(matchids):
     return windows
 
 if __name__ == '__main__':
-    windows = getAllWindows(1,3)
-    #print(len(windows))
+    windows = getAllWindows(0,3)
     for window in windows:
-        print(window.time)
         #print(window.get_dominating_team())
-        if window.is_goal():
+        if window.is_shot():
             print(window.to_string())
             #fig, ax = plt.subplots()
             window.plot()
             plt.show()
-            break
+            #break

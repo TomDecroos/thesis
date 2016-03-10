@@ -3,17 +3,14 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-import sqlite3
 
 import esv.features as f
 import tools.logger as logger
+from db.prozoneDB import DB
 from db.readShots import ShotReader
 
-
-dbfile = '../prozone.db'
-conn = sqlite3.connect(dbfile)
-c = conn.cursor()
-
+conn = DB.conn
+c = DB.c
 r = ShotReader()
 shotids = r.get_shot_ids()
 

@@ -4,12 +4,9 @@ Created on 2 Dec 2015
 @author: Temp
 '''
 
-import sqlite3
+from db.prozoneDB import DB
 
-
-dbfile = '../prozone.db'
-conn = sqlite3.connect(dbfile)
-c = conn.cursor()
+c = DB.c
 
 def get_features(names,wo_penalties=False,only_fcb_shots=False):
     qry = "select " + ",".join(names) + " from shotfeatures as s"
