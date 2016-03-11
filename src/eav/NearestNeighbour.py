@@ -32,21 +32,27 @@ class NearestNeighboursAbstract:
                 shots += dist if self.weighted else 1
         return shots/total
     
-    def predict_tuple(self,window,log=True):
+    def predict_shotprobgoalprob(self,window,log=True):
         ''' Predict the probability of a shot happening in this window
         and the probability of a goal happening'''
         nn = self.search_k_nearest_neighbours(window,log)
         total = 0
-        shots = 0
-        goals = 0
+        shotsdom = 0
+        goalsdom = 0
+        shotsoppo = 0
+        goalsoppo = 0
         for dist,neighbour in nn:
             total += dist if self.weighted else 1
             if neighbour.is_shot():
-                shots += dist if self.weighted else 1
                 x = neighbour.get_esv()
-                goals += dist*x if self.weighted else x
-                    
-        return shots/total,goals/total
+                if not neighbour.is_defensive_error_shot():
+                    shotsdom += dist if self.weighted else 1
+                    goalsdom += dist*x if self.weighted else x
+                else:
+                    shotsoppo += dist if self.weighted else 1
+                    goalsoppo += dist*x if self.weighted else x
+        return (shotsdom/total,shotsoppo/total),\
+                (goalsdom/total,goalsoppo/total)
     
 class NearestNeighboursBF(NearestNeighboursAbstract):
     def __init__(self,windows,k=100,weighted=False,dist = custom_dtw_distance):
@@ -75,15 +81,16 @@ class NearestNeighboursVP(NearestNeighboursAbstract):
         return self.nn
 
 if __name__ == '__main__':
-    trainset = getAllWindows(0,65)
-    testset = getAllWindows(65, 69)
+    trainset = getAllWindows(5,10)
+    testset = getAllWindows(0, 3)
     knn = NearestNeighboursBF(trainset,100,True)
     cnt = 0
     for window in testset:
-        if window.is_goal() and cnt < 4:
+        if window.is_goal() and cnt < 6:
             t0 = pc()
-            result = knn.predict_tuple(window,log=True)
+            result = knn.predict_shotprobgoalprob(window,log=True)
             print(result)
+            print(window.is_defensive_error_shot())
             print(pc()-t0, "seconds elapsed")
             fig,ax = plt.subplots(5,5)
             window.plot(ax[0,0],False,False,True)
@@ -94,5 +101,19 @@ if __name__ == '__main__':
             plt.show()
             cnt+=1
         
-    print(knn.predict_proba_shot(testset[1000]))
-    testset[1000].plot()
+    window = testset[1000]
+    print(knn.predict_shotprobgoalprob(window))
+    #print(window.is_wrong_direction())
+    fig,ax = plt.subplots(5,5)
+    window.plot(ax[0,0],False,False,True)
+    for i in range(1,25):
+        #print(knn.nn[i][0])
+        knn.nn[i][1].plot(ax[i//5,i%5],False,False,True)
+#     for dist,neighb in knn.nn:
+#         if neighb.is_shot():
+#             print(neighb.is_defensive_error_shot(),
+#                   neighb.get_shot_team(),
+#                   neighb.matchhalf.right)
+#             
+    plt.tight_layout()
+    plt.show()

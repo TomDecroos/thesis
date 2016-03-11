@@ -19,7 +19,7 @@ matchid = 80568
 knnfile = "../../data/knn.pkl"
 new_model = True
 resultsdir = "../../data/match_predictions/"
-resultsfile = str(matchid) + "dtw10s.txt"
+resultsfile = str(matchid) + "dtw10s_double.txt"
 nnfun = lambda:NearestNeighboursVP(
         windows=trainset,
         k=100,
@@ -32,7 +32,7 @@ if new_model and os.path.isfile(knnfile):
 if not os.path.isfile(knnfile):
     rows = c.execute("select id from match where not (id =?)",(matchid,)).fetchall()
     trainset = logger.execute(\
-             lambda:getWindows([m for (m,) in rows[0:1]]),\
+             lambda:getWindows([m for (m,) in rows]),\
              "Trainset built in")
     knn = logger.execute(nnfun,"VP Tree built in")
     pickle.dump(knn,open(knnfile,'wb'))
@@ -47,15 +47,23 @@ def classify_windows():
     results = []
     t0 = pc()
     for window in testset:
-        shotprob,goalprob = knn.predict_tuple(window)
-        is_shot = window.is_shot()
-        is_goal = window.is_goal()
+        (shotprobdom,shotprobother),(goalprobdom,goalprobother) = \
+            knn.predict_shotprobgoalprob(window)
+        
+        is_shot = 0
+        if window.is_shot():
+            is_shot = 1 if not window.is_defensive_error_shot() else -1
+        is_goal = 0
+        if window.is_goal():
+            is_goal = 1 if not window.is_defensive_error_goal() else -1
+            
         time = window.get_time()
         half = window.matchhalf.halfid
         dom_team = window.get_dominating_team()
         fcb = 1 if dom_team == "32311" else 0
-        results.append([half,time,fcb,shotprob,is_shot,goalprob,is_goal])
-        np.savetxt(resultsfile,results)
+        results.append([half,time,fcb,shotprobdom,shotprobother,is_shot,
+                        goalprobdom,goalprobother,is_goal])
+        np.savetxt(resultsdir + resultsfile,results)
         tx = time //1000
         if half ==2:
             tx+= 45*60

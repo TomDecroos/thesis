@@ -30,3 +30,6 @@ def execute(f,text):
 
 def to_timestring(time):
     return str(int(time//60))+"m"+str(int(time%60))+"s"
+
+def to_minutes(time):
+    return time/(60*1000)

@@ -18,82 +18,92 @@ c = DB.c
 class Window():
     
     def __init__(self,eventstream,matchhalf):
-        self.x = [t.x for t in eventstream]
-        self.y = [t.y for t in eventstream]
-        self.events = [t.eventname for t in eventstream]
-        self.duel = [t.duel for t in eventstream]
-        self.team = [t.team for t in eventstream]
-        self.actor = [t.actor for t in eventstream]
-        self.position = [t.position for t in eventstream]
-        self.time = [t.time for t in eventstream]
-        self.eventid = [t.eventid for t in eventstream]
+        self.events = eventstream
         self.matchhalf = matchhalf
     
     def is_shot(self):
-        
-        for event in self.events[C.CLASS_START:C.CLASS_END]:
-            if(event == "Shot on target" or event == "Shot not on target"):
+        for e in self.events[C.CLASS_START:C.CLASS_END]:
+            if(e.eventname == "Shot on target" or e.eventname == "Shot not on target"):
                 return 1
             
         return 0
     def is_goal(self):
-        
-        for event in self.events[0:C.CLASS_START]:
-            if(event == "Goal"):
+        for e in self.events[0:C.CLASS_START]:
+            if(e.eventname == "Goal"):
                 return 0
             
-        for event in self.events[C.CLASS_START:C.CLASS_END]:
-            if(event == "Goal"):
+        for e in self.events[C.CLASS_START:C.CLASS_END]:
+            if(e.eventname == "Goal"):
                 return 1
             
         return 0
     
     def get_esv(self):
-        eventnames = self.events[C.CLASS_START:C.CLASS_END]
-        ids = self.eventid[C.CLASS_START:C.CLASS_END]
-        for eventname,eventid in zip(eventnames,ids):
-            if(eventname == "Shot on target" or eventname == "Shot not on target"):
-                esv, = c.execute("select esv from shotvalue where shotid = ?",(eventid,))\
+        esv = 0
+        for e in self.events[C.CLASS_START:C.CLASS_END]:
+            if(e.eventname == "Shot on target" or e.eventname == "Shot not on target"):
+                esv, = c.execute("select esv from shotvalue where shotid = ?",(e.eventid,))\
                         .fetchone()
-                return esv
+                break
             
-        return 0
+        return esv #if not self.is_defensive_error_shot() else -esv
     def get_time(self):
-        return self.time[0]
+        return self.events[0].time
     
-    def get_left_to_right_x(self):
-        if self.get_dominating_team() == self.matchhalf.right:
-            #print("hooray")
-            return [-a for a in self.x]
-        else:
-            return self.x
     def is_wrong_direction(self):
         return self.get_dominating_team() == self.matchhalf.right
         
     def get_dominating_team(self):
-        teams = [t for t in self.team[0:C.CLASS_START] if t is not None]
-        fdist = nltk.FreqDist(teams)
-        return fdist.max()
+        teams = [e.team for e in self.events[0:C.CLASS_START] if e.team != 'None']
+        #print("dom",dom)
+        if len(teams)==0:
+            for e in self.events[C.CLASS_START:C.CLASS_END]:
+                if(e.team != 'None'):
+                    return e.team
+        else:
+            return nltk.FreqDist(teams).max()
     
+    def get_goal_team(self):
+        for e in self.events[0:C.CLASS_START]:
+            if(e.eventname == "Goal"):
+                raise Exception("Goal in feature data.")
+        for e in self.events[C.CLASS_START:C.CLASS_END]:
+            if(e.eventname == "Goal"):
+                return self.matchhalf.right if e.x < 0 else self.matchhalf.left
+        
+        raise Exception("No goal found")
+    
+    def get_shot_team(self):
+        for e in self.events[C.CLASS_START:C.CLASS_END]:
+            if(e.eventname == "Shot on target" or e.eventname == "Shot not on target"):
+                return self.matchhalf.right if e.x < 0 else self.matchhalf.left
+        raise Exception("No shot found")
+    
+    def is_defensive_error_shot(self):
+        return self.get_shot_team() != self.get_dominating_team()
+    
+    def is_defensive_error_goal(self):
+        return self.get_goal_team() != self.get_dominating_team()
+
     def to_string(self):
-        print("x " + str(self.x))
-        print("y " + str(self.y))
-        print("events " + str(self.events))
-        print("duel " + str(self.duel))
-        print("team " + str(self.team))
-        print("actor " + str(self.actor))
-        print("position " + str(self.position))
-        print("time:" + str(self.time))
-        print("eventid:" + str(self.eventid))
+        print("x " + str([e.x for e in self.events]))
+        print("y " + str([e.x for e in self.events]))
+        print("events " + str([e.eventname for e in self.events]))
+        print("duel " + str([e.duel for e in self.events]))
+        print("team " + str([e.team for e in self.events]))
+        print("actor " + str([e.actor for e in self.events]))
+        print("position " + str([e.position for e in self.events]))
+        print("time:" + str([e.time for e in self.events]))
+        print("eventid:" + str([e.eventid for e in self.events]))
     
     def plot(self,ax=None,events=True,figure=True,lefttoright=False):
         img = imread("../../data/soccerfield.png")
         if lefttoright and self.is_wrong_direction():
-            x = [-a for a in self.x]
-            y = [-a for a in self.y]
+            x = [-e.x for e in self.events]
+            y = [-e.y for e in self.events]
         else:
-            x = self.x
-            y = self.y
+            x = [e.x for e in self.events]
+            y = [e.y for e in self.events]
         if ax is None:
             foo = plt
         else:
@@ -106,7 +116,7 @@ class Window():
         foo.scatter(x[C.CLASS_START:C.CLASS_END], y[C.CLASS_START:C.CLASS_END],c="red")
         if events:
             for i,event in enumerate(self.events):
-                foo.annotate(event,(x[i],self.y[i]))
+                foo.annotate(event.eventname,(x[i],y[i]))
 
         if ax is None:
             plt.show()
@@ -169,12 +179,21 @@ def getWindows(matchids):
     return windows
 
 if __name__ == '__main__':
-    windows = getAllWindows(0,3)
+    windows = getAllWindows(0,69)
+    cnt=0
     for window in windows:
         #print(window.get_dominating_team())
-        if window.is_shot():
-            print(window.to_string())
+        if window.is_goal():
+            cnt +=1
+            if window.get_goal_team() != window.get_dominating_team():
+                print("defence error")
+                pass
+            else:
+                print("ok")
+                pass
+            #print(window.to_string())
             #fig, ax = plt.subplots()
-            window.plot()
-            plt.show()
+            #window.plot()
+            #plt.show()
             #break
+    print("cnt",cnt)

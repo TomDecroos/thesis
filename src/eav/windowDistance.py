@@ -16,8 +16,8 @@ def custom_dtw_distance(window1,window2):
     #strdist = lambda x,y: ifelse(x==y,0,1)
     x,y = [],[]
     for w in (window1,window2):
-        xs = w.x[0:C.CLASS_START]
-        ys = w.y[0:C.CLASS_START]
+        xs = [e.x for e in w.events[0:C.CLASS_START]]
+        ys = [e.y for e in w.events[0:C.CLASS_START]]
         if w.is_wrong_direction():
             xs = [-a for a in xs]
             ys = [-a for a in ys]
@@ -35,8 +35,8 @@ def custom_dtw_distance(window1,window2):
     return x_dist**2 + y_dist**2 #+ e_dist 
 
 def naive_distance(window1,window2):
-    x1 = window1.x[C.CLASS_START-1]/C.X_WIDTH
-    y1 = window1.y[C.CLASS_START-1]/C.Y_WIDTH
-    x2 = window2.x[C.CLASS_START-1]/C.X_WIDTH
-    y2 = window2.y[C.CLASS_START-1]/C.Y_WIDTH
+    x1 = window1.events[C.CLASS_START-1].x/C.X_WIDTH
+    y1 = window1.events[C.CLASS_START-1].y/C.Y_WIDTH
+    x2 = window2.events[C.CLASS_START-1].x/C.X_WIDTH
+    y2 = window2.events[C.CLASS_START-1].y/C.Y_WIDTH
     return abs(x1-x2)**2 + abs(y1-y2)**2

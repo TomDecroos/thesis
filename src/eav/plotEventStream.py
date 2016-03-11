@@ -7,7 +7,7 @@ import sqlite3
 
 from matplotlib.image import imread
 
-from eav.constants import Constant as C
+from tools.constants import Constant as C
 import eav.interpolation as ip
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
