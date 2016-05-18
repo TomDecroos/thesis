@@ -17,7 +17,6 @@ c = DB.c
 
 def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
     (matchid,) = c.execute("select id from match order by id").fetchall()[matchnb]
-    print "Predicting flow of match %s" %matchid
     
     if distancemetric == "dtw":
         dist = custom_dtw_distance
@@ -25,6 +24,9 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
     else:
         dist = naive_distance
         filename= (str(matchid) + "_naive")
+        distancemetric = "naive"
+    
+    print "Predicting flow of match %s with distancemetric %s" %(matchid,distancemetric)
     
     logdict = dict()
     
