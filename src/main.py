@@ -82,6 +82,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         matchnb = sys.argv[1]
         dist_metric = sys.argv[2]
+        print "args", matchnb, dist_metric
     else:
         matchnb = 0
         dist_metric = "naive"
