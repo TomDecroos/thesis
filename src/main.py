@@ -3,6 +3,8 @@ Created on 17 May 2016
 
 @author: Tom
 '''
+import sys
+sys.path.append(".")
 from db.prozoneDB import DB
 from eav.windowDistance import custom_dtw_distance, naive_distance
 from tools import logger
@@ -10,7 +12,7 @@ from eav.window import getWindows
 import json
 from eav.NearestNeighbour import NearestNeighboursVP
 import numpy as np
-import sys
+
 
 c = DB.c
 
