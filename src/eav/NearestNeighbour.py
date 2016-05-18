@@ -3,15 +3,14 @@ Created on 17 Feb 2016
 
 @author: Temp
 '''
-from eav.dtw import dtw
-from tools.constants import Constant as C
+#from eav.dtw import dtw
+#from tools.constants import Constant as C
 from eav.window import getAllWindows
 import tools.logger as logger
-from xlwt.antlr import ifelse
 import matplotlib.pyplot as plt
-from time import perf_counter as pc
 from eav.VPTree import VPTree,get_nearest_neighbors
 from eav.windowDistance import custom_dtw_distance
+#from math import sqrt
 
  
 class NearestNeighboursAbstract:
@@ -42,20 +41,21 @@ class NearestNeighboursAbstract:
         shotsoppo = 0
         goalsoppo = 0
         for dist,neighbour in nn:
-            total += dist if self.weighted else 1
+            weight = 1/dist if dist > 0 else 1
+            total += weight if self.weighted else 1
             if neighbour.is_shot():
                 x = neighbour.get_esv()
                 if not neighbour.is_defensive_error_shot():
-                    shotsdom += dist if self.weighted else 1
-                    goalsdom += dist*x if self.weighted else x
+                    shotsdom += weight if self.weighted else 1
+                    goalsdom += weight*x if self.weighted else x
                 else:
-                    shotsoppo += dist if self.weighted else 1
-                    goalsoppo += dist*x if self.weighted else x
+                    shotsoppo += weight if self.weighted else 1
+                    goalsoppo += weight*x if self.weighted else x
         return (shotsdom/total,shotsoppo/total),\
                 (goalsdom/total,goalsoppo/total)
     
 class NearestNeighboursBF(NearestNeighboursAbstract):
-    def __init__(self,windows,k=100,weighted=False,dist = custom_dtw_distance):
+    def __init__(self,windows,k=100,weighted=True,dist = custom_dtw_distance):
         self.windows = windows
         self.dist = dist
         self.k = k

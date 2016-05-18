@@ -23,11 +23,12 @@ def _interpolate(p1, p2, time):
         x1 = xs1[i]
         x2 = xs2[i]
         #print(x1,x2)
-        if isinstance(x1, str):
+        if isinstance(x1, basestring):
             x = x1
         elif isinstance(x1,numbers.Number):
             x = (x2 * (time - t1) / window) + (x1 * (t2 - time) / window)
         else:
+            print(x1)
             raise Exception("Could not interpolate value " + x1)
         tup += (x,)
     return tup + (time,)
@@ -51,3 +52,19 @@ def interpolate_eventstream(events, step):
             yield Event(_interpolate(events[i].to_tuple(), events[i+1].to_tuple(), time))
             time += step
 #print(_interpolate((1,1),(5,5),4))
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    events = [(1000,5000),(1450,10789),(1600,11453),(1300,12400),(1800,15600)]
+    events = [(223,4500),(225.194,3560),(227.072,3560),(228.844,4960),(229.142,5240),
+              (229.599,5250),(258.159,5225)]
+    events = [(y,x) for (x,y) in events]
+    step = .500
+    ipevents = list(interpolate(events,step))
+    plt.scatter([y for x,y in ipevents],[x for x,y in ipevents])
+    plt.scatter([y for x,y in events],[x for x,y in events],c="red",s=50)
+    #plt.ylim(0,5500)
+    plt.xlim(224,234)
+    plt.ylabel("X-coordinate")
+    plt.xlabel("Time (seconds)")
+    plt.show()

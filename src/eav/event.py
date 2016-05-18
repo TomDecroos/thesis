@@ -21,3 +21,9 @@ class Event():
         return  self.x,self.y,self.eventname,self.duel,\
                 self.team,self.actor,self.position,\
                 self.eventid,self.time
+    
+    def to_string(self):
+        return str((round(self.x),round(self.y),\
+                   self.eventname,self.duel,\
+                self.team,self.actor,self.position,\
+                self.eventid,self.time))

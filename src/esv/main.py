@@ -17,6 +17,8 @@ from db.readShotFeaturesTable import get_features, get_results
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+from tools.analyzePredictions import plot_roc_curves
+from sklearn import calibration
 
 
 def analyze_model(cross=True):
@@ -47,6 +49,14 @@ def comparemodels(cross=True):
         prob_alt = model.predict(X)
     #compare_models(X, y, prob, prob_alt, f, f_plot=True)
     plot_roc_curve(y, prob, prob_alt)
+
+def comparemodelsroc(models,labels):
+    preds = []
+    X = np.array(get_features(f, wo_penalties, only_fcb_shots))
+    y = np.array(get_results(wo_penalties, only_fcb_shots))
+    for model in models:
+        preds.append(model.crosspredict(X,y))
+    plot_roc_curves(y,preds,labels)
 
 def build_shotclasstable(cross=True):
     from db.prozoneDB import DB
@@ -90,14 +100,22 @@ f = [
 ]
 
 wo_penalties,only_fcb_shots = False,False
-model = SKLearnModel(lambda : ExtraTreesClassifier(10000),calibration=False)
-#model = SKLearnModel(LogisticRegression,calibration=True)
-#model_alt = SKLearnModel(lambda : DecisionTreeClassifier(),calibration=False)
+model = SKLearnModel(lambda : ExtraTreesClassifier(5000),calibration=False)
+model2 = SKLearnModel(LogisticRegression,calibration=False)
+model3 = SKLearnModel(lambda : RandomForestClassifier(1000),calibration=False)
+model4 = SKLearnModel(GaussianNB)
+model5 = SKLearnModel(lambda : SVC(probability=True,class_weight="auto"),calibration=False)
+comparemodelsroc([model,model2],#,model3,model4],
+                 ["Extremely\nRandomized\nTrees",
+                  "Logistic\nRegression"
+                  #"Random Forest",
+                  #"Naive Bayes"
+                  ])
 #analyze_model(cross=True)
-build_shotclasstable(cross=True)
+#build_shotclasstable(cross=True)
 #f_alt = f
 #model_alt = SKLearnModel(SVC,calibration=True)
 
 #comparemodels(cross=True)
-pickle.dump(SavedSKLearnModel(model),open('../../data/shotclassifier.pkl','wb'))
-plt.show()
+#pickle.dump(SavedSKLearnModel(model),open('../../data/shotclassifier.pkl','wb'))
+#plt.show()

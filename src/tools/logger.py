@@ -3,7 +3,8 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-from time import perf_counter as pc
+#from time import perf_counter as pc
+import time
 
 def map(text,xs,f,log=True,percstep=1):
     n = len(xs)
@@ -22,11 +23,17 @@ def map(text,xs,f,log=True,percstep=1):
     return results
 
 def execute(f,text):
-    t0 = pc()
+    t0 = time.time()
     result = f()
-    time = pc() - t0
-    print(text, to_timestring(time))
+    duration = time.time() - t0
+    print(text, to_timestring(duration))
     return result
+
+def executeandtime(f):
+    t0 = time.time()
+    result = f()
+    duration = time.time() - t0
+    return (result,duration)
 
 def to_timestring(time):
     return str(int(time//60))+"m"+str(int(time%60))+"s"

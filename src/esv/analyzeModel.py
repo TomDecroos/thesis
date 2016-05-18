@@ -3,33 +3,36 @@ Created on 2 Dec 2015
 
 @author: Temp
 '''
-from esv.model import SKLearnModel
-from sklearn.linear_model.logistic import LogisticRegression
-from db.readShotFeaturesTable import get_features, get_results
-from sklearn.svm.classes import LinearSVC, SVC
-from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble.forest import RandomForestClassifier,\
-    RandomForestRegressor, ExtraTreesClassifier
-from sklearn.linear_model.bayes import BayesianRidge, ARDRegression
-from sklearn.ensemble.weight_boosting import AdaBoostClassifier,\
-    AdaBoostRegressor
-from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier
-
 '''
 Created on 9 Nov 2015
 
 @author: Tom
 '''
+
+import math
 import warnings
 
 from sklearn.calibration import calibration_curve
+from sklearn.ensemble.forest import RandomForestClassifier, \
+    RandomForestRegressor, ExtraTreesClassifier
+from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier
+from sklearn.ensemble.weight_boosting import AdaBoostClassifier, \
+    AdaBoostRegressor
+from sklearn.linear_model.bayes import BayesianRidge, ARDRegression
+from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.metrics.classification import brier_score_loss, log_loss
-from sklearn.metrics.ranking import roc_auc_score, average_precision_score,\
+from sklearn.metrics.ranking import roc_auc_score, average_precision_score, \
     roc_curve
 from sklearn.metrics.regression import r2_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm.classes import LinearSVC, SVC
+
+from db.readShotFeaturesTable import get_features, get_results
+from esv.model import SKLearnModel
 import matplotlib.pyplot as plt
-import math
 import numpy as np
+
+
 warnings.filterwarnings("ignore")
 
 def plot_feature_pred(x,y,prob,name,ax):
@@ -148,8 +151,8 @@ def analysistest():
     'Angle',
     'Surface',
     #'LastEvent',
-    'NbOfPassesInPhase',
-    'NbOfEventsInPhase',
+    #'NbOfPassesInPhase',
+    #'NbOfEventsInPhase',
     'NbOfPassesInTimewindow',
     'NbOfEventsInTimewindow',
     'SpeedInTimewindow',

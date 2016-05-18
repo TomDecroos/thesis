@@ -6,24 +6,24 @@ Created on 28 Feb 2016
 from db.prozoneDB import DB
 from eav.window import getWindows
 from eav.NearestNeighbour import NearestNeighboursVP
-from time import perf_counter as pc
 import tools.logger as logger
 import numpy as np
 import pickle
 import os.path
 from eav.windowDistance import naive_distance, custom_dtw_distance
+
 c = DB.c
 
 # Brugge - AA Gent : 26/10/2014
 matchid = 80568
-knnfile = "../../data/knn.pkl"
+knnfile = "../../data/knn_naive.pkl"
 new_model = True
 resultsdir = "../../data/match_predictions/"
-resultsfile = str(matchid) + "dtw10s_double.txt"
+resultsfile = str(matchid) + "dtw10s_double_noweights.txt"
 nnfun = lambda:NearestNeighboursVP(
         windows=trainset,
         k=100,
-        weighted=True,
+        weighted=False,
         dist=custom_dtw_distance)
 
 if new_model and os.path.isfile(knnfile):

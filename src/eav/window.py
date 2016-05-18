@@ -5,14 +5,14 @@ Created on 16 Feb 2016
 '''
 
 from matplotlib.image import imread
-import nltk
 
 from db.prozoneDB import DB
-from tools.constants import Constant as C
-import eav.interpolation as ip
-import matplotlib.pyplot as plt
-import numpy as np
 from eav.event import Event
+import eav.interpolation as ip
+import numpy as np
+from tools.constants import Constant as C
+
+
 c = DB.c
 
 class Window():
@@ -60,8 +60,12 @@ class Window():
             for e in self.events[C.CLASS_START:C.CLASS_END]:
                 if(e.team != 'None'):
                     return e.team
+            return 'None'
         else:
-            return nltk.FreqDist(teams).max()
+            nubteams = list(set(teams))
+            counts = [(t, teams.count(t)) for t in nubteams]
+            dom_team = max(counts, key = lambda x:x[1])
+            return dom_team[0]
     
     def get_goal_team(self):
         for e in self.events[0:C.CLASS_START]:
@@ -97,6 +101,7 @@ class Window():
         print("eventid:" + str([e.eventid for e in self.events]))
     
     def plot(self,ax=None,events=True,figure=True,lefttoright=False):
+        import matplotlib.pyplot as plt
         img = imread("../../data/soccerfield.png")
         if lefttoright and self.is_wrong_direction():
             x = [-e.x for e in self.events]
@@ -179,9 +184,10 @@ def getWindows(matchids):
     return windows
 
 if __name__ == '__main__':
-    windows = getAllWindows(0,69)
+    windows = getAllWindows(0,1)
     cnt=0
     for window in windows:
+        print(window.get_dominating_team(), [e.team for e in window.events])
         #print(window.get_dominating_team())
         if window.is_goal():
             cnt +=1
