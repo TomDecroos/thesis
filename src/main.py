@@ -45,6 +45,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
     
     testset,testsettime = logger.executeandtime(lambda:getWindows([matchid]))
     logdict["get testset"] = testsettime
+    if v > 0: print("testset retrieved")
     
     def classify_match():
         results = []
@@ -70,20 +71,31 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
             tx = time //1000
             if half ==2:
                 tx+= 45*60
-            print "Time in-game:",logger.to_timestring(tx)
+            if tx%(60*15) in range(0,5) and v > 0:
+                print "Time in-game:",logger.to_timestring(tx)
     
     foo,classifytime = logger.executeandtime(classify_match)
     logdict["match classification"] = classifytime
     logfile = open("../data/logs/" + filename,"w+")
     json.dump(logdict,logfile)
-    
+    print "Match", matchid, "classified and written to file", filename    
+
+def run_matches(matches):
+    for m in matches:
+        predictmatchflow(m,"naive",v=1)
+        #predictmatchflow(m, "dtw", v=1)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        matchnb = int(sys.argv[1])
-        dist_metric = sys.argv[2]
+    if sys.argv[1] == "multi":
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+        run_matches(range(start,end))
     else:
-        matchnb = 0
-        dist_metric = "naive"
-    predictmatchflow(matchnb,dist_metric,v=1)
+        if sys.argv[1] == "single":
+            matchnb = int(sys.argv[2])
+            dist_metric = sys.argv[3]
+        else:
+            matchnb = 0
+            dist_metric = "naive"
+        predictmatchflow(matchnb,dist_metric,v=1)
         
