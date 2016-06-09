@@ -10,12 +10,14 @@ from tools.analyzePredictions import smooth, exp_smooth
 from tools.detect_peaks import detect_peaks
 from eav.plotMatchPredictions import getTimes, getSmoothedValues, detectPeaks
 from math import floor
+from db.prozoneDB import DB
+c = DB.c
 
 
 def getPredictionsHalf(mp,half=1):
     times = getTimes(mp,half)
-    #x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=0.1))
-    x1,x2 = getSmoothedValues(mp,half,lambda x:smooth(x, beta=.4,window_len=11))
+    #x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=.1))
+    x1,x2 = getSmoothedValues(mp,half,lambda x:smooth(x, beta=4,window_len=11))
     #x1,x2 = getSmoothedValues(mp,half,None)
     #print(x1)
     x = [max(a,b) for a,b in zip(x1,x2)]
@@ -89,22 +91,58 @@ def printhighlights(highlights,add=0):
         print res
 #print(int(5.7))
 
-matchid=80568
-predictionsfile = '../../data/results/' + str(matchid) + '_dtw'
-#predictionsfile = '../../data/match_predictions/' \
-#+ str(matchid) + 'dtw10s_double.txt'
-mp = np.loadtxt(predictionsfile)
-pred = getpredictions(mp)
-highlightsfile= '../../data/ground_truth/highlights.txt'
-highlights = read_highlights(highlightsfile, 'fcb', 'gent')
-#print highlights
-scores = get_scores(highlights,pred)
+def getScores(matchid,fcb ='fcb',opp ='opp'):
+    predictionsfile = '../../data/results/' + str(matchid) + '_dtw'
+    mp = np.loadtxt(predictionsfile)
+    pred = getpredictions(mp)
+    highlightsfile= '../../data/ground_truth/match-' + str(matchid) + '.txt'
+    highlights = read_highlights(highlightsfile, fcb, opp)
+    return get_scores(highlights,pred)
+
+def printPRandRecall(matchid,fcb ='fcb',opp ='opp'):
+    scores = getScores(matchid, fcb, opp)
+    print(scores)
+    print(getprrec(scores))
+
+def getRandomScores(matchid,fcb ='fcb',opp ='opp'):
+    highlightsfile= '../../data/ground_truth/match-' + str(matchid) + '.txt'
+    highlights = read_highlights(highlightsfile, fcb, opp)
+    random = randompredictions(len(highlights))
+    return get_scores(highlights, random)
+
+def getAllScores():
+    matchids = [m for (m,) in c.execute("select id from match order by id").fetchall()]
+    a,b,e,d = 0,0,0,0
+    for matchid in matchids:
+        try:
+            a1,b1,c1,d1 = getScores(matchid)
+            a+=a1;b+=b1;e+=c1;d+=d1
+        except:
+            pass
+    return a,b,e,d
+
+def getAllRandomScores():
+    matchids = [m for (m,) in c.execute("select id from match order by id").fetchall()]
+    a,b,e,d = 0,0,0,0
+    for matchid in matchids:
+        try:
+            a1,b1,c1,d1 = getRandomScores(matchid)
+            a+=a1;b+=b1;e+=c1;d+=d1
+        except:
+            pass
+    return a,b,e,d
+
+scores = getAllScores()
 print(scores)
 print(getprrec(scores))
-random = randompredictions(38)
-scores_r = get_scores(highlights, random) 
-print(scores_r)
-print(getprrec(scores_r))
+scores = getAllRandomScores()
+print(scores)
+print(getprrec(scores))
+
+#printPRandRecall(matchid)
+#randomPRandRecall(matchid)
+
+
 # if False:
 # #if True:
 #     for i in range(1,95):
