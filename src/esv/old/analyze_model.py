@@ -11,9 +11,9 @@ from sklearn.metrics.classification import brier_score_loss, log_loss
 from sklearn.metrics.ranking import roc_auc_score, average_precision_score
 from sklearn.metrics.regression import r2_score
 
-from expGoals.old.db_reader import DBReader
-from expGoals.old.expGmodel import Logit, LinearSVM, Average
-from expGoals.old.features import Features, featuremap
+#from expGoals.old.db_reader import DBReader
+#from expGoals.old.expGmodel import Logit, LinearSVM, Average
+#from expGoals.old.features import Features, featuremap
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -126,9 +126,9 @@ def compare_scores(scores1,scores2):
     scorenames = ["brier","log","roc","pr","r2"]
     print("\n#####################")
     print("### Model 1 wins: ###")
-    [print(n + " " + str(d)) for n,d in zip(scorenames,scores_diff) if d > 0]
+    #[print(n + " " + str(d)) for n,d in zip(scorenames,scores_diff) if d > 0]
     print("### Model 2 wins: ###")
-    [print(n + ": " + str(-d)) for n,d in zip(scorenames,scores_diff) if d < 0]          
+    #[print(n + ": " + str(-d)) for n,d in zip(scorenames,scores_diff) if d < 0]          
     print("#####################")
 
 f=Features(["distance","angle","surface"])

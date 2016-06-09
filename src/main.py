@@ -83,7 +83,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
 def run_matches(matches):
     for m in matches:
         predictmatchflow(m,"naive",v=1)
-        predictmatchflow(m, "dtw", v=1)
+        #predictmatchflow(m, "dtw", v=1)
 
 if __name__ == '__main__':
     if sys.argv[1] == "multi":

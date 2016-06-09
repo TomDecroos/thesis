@@ -182,24 +182,24 @@ def getWindows(matchids):
                 windows.append(Window(eventstream[i:i+windowsize],matchhalf))
                 i += int(C.WINDOW_INTERVAL/C.EVENT_INTERVAL)
     return windows
-
+    
 if __name__ == '__main__':
-    windows = getAllWindows(0,1)
-    cnt=0
-    for window in windows:
-        print(window.get_dominating_team(), [e.team for e in window.events])
-        #print(window.get_dominating_team())
-        if window.is_goal():
-            cnt +=1
-            if window.get_goal_team() != window.get_dominating_team():
-                print("defence error")
-                pass
-            else:
-                print("ok")
-                pass
-            #print(window.to_string())
-            #fig, ax = plt.subplots()
-            #window.plot()
-            #plt.show()
-            #break
-    print("cnt",cnt)
+#     windows = getAllWindows(0,1)
+#     cnt=0
+#     for window in windows:
+#         print(window.get_dominating_team(), [e.team for e in window.events])
+#         #print(window.get_dominating_team())
+#         if window.is_goal():
+#             cnt +=1
+#             if window.get_goal_team() != window.get_dominating_team():
+#                 print("defence error")
+#                 pass
+#             else:
+#                 print("ok")
+#                 pass
+#             #print(window.to_string())
+#             #fig, ax = plt.subplots()
+#             #window.plot()
+#             #plt.show()
+#             #break
+#     print("cnt",cnt)

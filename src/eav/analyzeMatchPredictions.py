@@ -12,34 +12,34 @@ from tools.logger import to_minutes
 from tools.constants import Constant as C
 from tools.detect_peaks import detect_peaks
 
-matchid=65042
-predictionsfile = '../../data/results/' + str(matchid) + '_naive'
+matchid=80568
+predictionsfile = '../../data/results/' + str(matchid) + '_dtw'
 
 naivepredictionsfile = '../../data/results/'  + str(matchid) + '_naive'
-matchpredictions = np.loadtxt(predictionsfile)
+mp = np.loadtxt(predictionsfile)
 naivematchpredictions = np.loadtxt(naivepredictionsfile)
 # half,time,fcb,
 # shotprobother,shotprobother,is_shot,
 # goalprobother,goalprobother,is_goal
-def parse_matchpredictions(matchpredictions):
-    half = matchpredictions[:,0]
-    time = matchpredictions[:,1]
-    fcb = matchpredictions[:,2]
-    shotprobdom = matchpredictions[:,3]
-    shotprobother = matchpredictions[:,4]
-    is_shot = matchpredictions[:,5]
-    goalprobdom = matchpredictions[:,6]
-    goalprobother = matchpredictions[:,7]
-    is_goal = matchpredictions[:,8]
+def parse_matchpredictions(mp):
+    half = mp[:,0]
+    time = mp[:,1]
+    fcb = mp[:,2]
+    shotprobdom = mp[:,3]
+    shotprobother = mp[:,4]
+    is_shot = mp[:,5]
+    goalprobdom = mp[:,6]
+    goalprobother = mp[:,7]
+    is_goal = mp[:,8]
     return half,time,fcb,shotprobdom,shotprobother,is_shot,\
         goalprobdom,goalprobother,is_goal
 
 half,time,fcb,shotprobdom,shotprobother,is_shot,\
-goalprobdom,goalprobother,is_goal = parse_matchpredictions(matchpredictions)
+goalprobdom,goalprobother,is_goal = parse_matchpredictions(mp)
 
 
-startm = 0 #minutes
-stepm = 45#minutes
+startm = 29 #minutes
+stepm = 15#minutes
 
 start =startm*60/5
 step = stepm*60/5
@@ -58,7 +58,7 @@ def analyze_model_shotprob():
     #plot_roc_curve(is_goal,goalprob)
 
 def analyze_dtw_vs_naive():
-    res = parse_matchpredictions(matchpredictions)
+    res = parse_matchpredictions(mp)
     shotprobdom,shotprobother,is_shot = res[3],res[4],res[5]
     res = parse_matchpredictions(naivematchpredictions)
     shotprobdomN,shotprobotherN = res[3],res[4]
@@ -159,7 +159,7 @@ def plot_matchsegment(smooth=False):
     plt.tight_layout()
     plt.show()
 
-#analyze_model_shotprob()
+analyze_model_shotprob()
 analyze_dtw_vs_naive()
 plot_matchsegment(True)
 #find_peaks(doSmooth = True)

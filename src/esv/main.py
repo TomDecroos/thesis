@@ -100,22 +100,22 @@ f = [
 ]
 
 wo_penalties,only_fcb_shots = False,False
-model = SKLearnModel(lambda : ExtraTreesClassifier(5000),calibration=False)
+model = SKLearnModel(lambda : ExtraTreesClassifier(1000),calibration=False)
 model2 = SKLearnModel(LogisticRegression,calibration=False)
 model3 = SKLearnModel(lambda : RandomForestClassifier(1000),calibration=False)
 model4 = SKLearnModel(GaussianNB)
-model5 = SKLearnModel(lambda : SVC(probability=True,class_weight="auto"),calibration=False)
-comparemodelsroc([model,model2],#,model3,model4],
-                 ["Extremely\nRandomized\nTrees",
-                  "Logistic\nRegression"
-                  #"Random Forest",
-                  #"Naive Bayes"
-                  ])
+model5 = SKLearnModel(lambda : DecisionTreeClassifier(),calibration=False)
+comparemodelsroc([model2,model4,model5,model3,model],
+                 ["Logistic Regression",
+                  "Naive Bayes",
+                  "Decision Tree",
+                  "Random Forest",
+                  "Extremely Randomized\nTrees",])
 #analyze_model(cross=True)
 #build_shotclasstable(cross=True)
 #f_alt = f
 #model_alt = SKLearnModel(SVC,calibration=True)
 
 #comparemodels(cross=True)
-#pickle.dump(SavedSKLearnModel(model),open('../../data/shotclassifier.pkl','wb'))
+#pickle.dump(SavedSKLearnModel(model),open('shotclassifier.pkl','wb'))
 #plt.show()

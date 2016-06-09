@@ -6,30 +6,30 @@ Created on 25 Nov 2015
 
 import pickle
 
-from scipy.misc import imread
+#from scipy.misc import imread
 
 from db.readShotFeaturesTable import get_features 
 import matplotlib.pyplot as plt
-import numpy as np
+#import numpy as np
 
 
 def plot_shots(shots):
     limits = [-5750,5750,-3600,3600];
-    img = imread("../soccerfield.png")
+    img = plt.imread("../../data/soccerfield.png")
     
     plt.axis(limits)
     plt.imshow(img, extent = limits)
-    model = pickle.load(open('model.pkl','rb'))
+    #model = pickle.load(open('model.pkl','rb'))
     
     x,y,r,a = [],[],[],[]
     for shot in shots:
         x.append(shot[0])
         y.append(shot[1])
-        p = model.predict(shot)
-        r.append(p)
-        a.append(p)
+        #p = model.predict(shot)
+        #r.append(p)
+        #a.append(p)
     
-    plt.scatter(x,y,c = r,cmap="YlOrRd")
+    plt.scatter(x,y)#,c = r,cmap="YlOrRd")
     plt.show()
 
 f = [

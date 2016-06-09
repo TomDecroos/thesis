@@ -140,9 +140,12 @@ def compare_scores(scores1,scores2):
     scorenames = ["brier","log","roc","pr","r2"]
     print("\n#####################")
     print("### Model 1 wins: ###")
-    [print(n + " " + str(d)) for n,d in zip(scorenames,scores_diff) if d > 0]
+    for n,d in zip(scorenames,scores_diff):
+        if d > 0: print n + " " + str(d)  
     print("### Model 2 wins: ###")
-    [print(n + ": " + str(-d)) for n,d in zip(scorenames,scores_diff) if d < 0]          
+    for n,d in zip(scorenames,scores_diff):
+        if d < 0:
+            print n + ": " + str(-d)          
     print("#####################")
 
 def analysistest():

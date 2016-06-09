@@ -9,8 +9,8 @@ Created on 9 Nov 2015
 
 import warnings
 
-from expGoals.old.cluster import get_kmeans_clusters
-from expGoals.old.features import get_distance_to_goal
+#from expGoals.old.cluster import get_kmeans_clusters
+#from expGoals.old.features import get_distance_to_goal
 import matplotlib.pyplot as plt
 import numpy as np
 
