@@ -5,7 +5,8 @@ Created on 1 Mar 2016
 '''
 
 #from sklearn.metrics.classification import brier_score_loss, log_loss
-#from sklearn.metrics.ranking import roc_auc_score, average_precision_score,roc_curve
+#from sklearn.metrics.ranking import roc_auc_score, average_precision_score,\
+    roc_curve
 #from sklearn.metrics.regression import r2_score
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines

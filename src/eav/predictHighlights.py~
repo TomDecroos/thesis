@@ -16,8 +16,8 @@ c = DB.c
 
 def getPredictionsHalf(mp,half=1,mpd=18):
     times = getTimes(mp,half)
-    x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=.2))
-    #x1,x2 = getSmoothedValues(mp,half,lambda x:smooth(x, beta=4,window_len=11))
+    #x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=.2))
+    x1,x2 = getSmoothedValues(mp,half,lambda x:smooth(x, beta=4,window_len=11))
     #x1,x2 = getSmoothedValues(mp,half,None)
     #print(x1)
     x = [max(a,b) for a,b in zip(x1,x2)]
@@ -52,7 +52,7 @@ def savePredictions(matchid,filename):
 def saveAllPredictions():
     matchids = [m for (m,) in c.execute("select id from match order by id").fetchall()]
     for m in matchids:
-        peakfile = '../../data/peaks/kaiser/match-' + str(m) + '.txt'
+        peakfile = '../../data/peaks/exponential/match-' + str(m) + '.txt'
         savePredictions(m,peakfile)
 
 def read_highlights(file,teamA='fcb',teamB='gent'):
@@ -120,7 +120,7 @@ def getbetterscores(highlights,peaks):
     return len(peaks),matches,len(highlights),matches
 
 def ismatch(highlight,peak,mpd=18):
-    dist = abs(highlight[0]-1 - peak[0]) < 1.5 #float(mpd)/float(12)
+    dist = abs(highlight[0]-1 - peak[0]) < float(mpd)/float(12)
     team = highlight[1] == peak[1]
     return dist and team
 
@@ -172,7 +172,7 @@ def printPRandRecall(matchid,fcb ='fcb',opp ='opp'):
 def getRandomScores(matchid,fcb ='fcb',opp ='opp'):
     highlightsfile= '../../data/ground_truth/match-' + str(matchid) + '.txt'
     highlights = read_highlights(highlightsfile, fcb, opp)
-    n = len(highlights) + 8
+    n = len(highlights) + 9
     random = randompredictions(n)
     return getbetterscores(highlights, random)
 
@@ -212,7 +212,7 @@ print(getprrec(scores))
 scores = getAllRandomScores()
 print(scores)
 print(getprrec(scores))
-#saveAllPredictions()
+saveAllPredictions()
 #printPRandRecall(matchid)
 #randomPRandRecall(matchid)
 
