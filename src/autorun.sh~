@@ -1,0 +1,15 @@
+function setcmd {
+smallcmd='screen -dm python main.py multi naive direct'
+CMD='cd thesis/src; '
+CMD+=$smallcmd' '$1' '$2'; '
+CMD+=$smallcmd' '$2' '$3'; '
+CMD+=$smallcmd' '$3' '$4'; '
+}
+
+setcmd 0 5 10 15
+ssh pinac39.cs.kuleuven.be $CMD
+
+setcmd 15 20 25 30
+ssh pinac33.cs.kuleuven.be $CMD
+
+

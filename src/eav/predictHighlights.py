@@ -16,7 +16,7 @@ c = DB.c
 
 def getPredictionsHalf(mp,half=1,mpd=18):
     times = getTimes(mp,half)
-    x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=.2))
+    x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=0.25))
     #x1,x2 = getSmoothedValues(mp,half,lambda x:smooth(x, beta=4,window_len=11))
     #x1,x2 = getSmoothedValues(mp,half,None)
     #print(x1)
@@ -126,8 +126,12 @@ def ismatch(highlight,peak,mpd=18):
 
 
 def getprrec(scores):
-    return "precision: " + str(float(scores[1])/scores[0]) + "\n"  \
-        + "recall: " + str(float(scores[3])/scores[2])
+    precision = float(scores[1])/scores[0]
+    recall = float(scores[3])/scores[2]
+    fscore = 2 * (precision*recall) / (precision + recall)
+    return "precision: " + str(precision) + "\n"  \
+        + "recall: " + str(recall) + "\n" \
+        + "f-score: " + str(fscore)
 
 def isinhighlights(p,highlights):
     m = round(p[0])
@@ -156,10 +160,10 @@ def printhighlights(highlights,add=0):
         print res
 #print(int(5.7))
 
-def getScores(matchid,fcb ='fcb',opp ='opp',mpd=18):
+def getScores(matchid,fcb ='fcb',opp ='opp',mpd=18,dir='',app="_dtw"):
     highlightsfile= '../../data/ground_truth/match-' + str(matchid) + '.txt'
     highlights = read_highlights(highlightsfile, fcb, opp)
-    predictionsfile = '../../data/results/' + str(matchid) + '_dtw'
+    predictionsfile = '../../data/results/' + dir + str(matchid) + app
     mp = np.loadtxt(predictionsfile)
     pred = getpredictions(mp,mpd=mpd)
     return getbetterscores(highlights,pred)
@@ -176,23 +180,25 @@ def getRandomScores(matchid,fcb ='fcb',opp ='opp'):
     random = randompredictions(n)
     return getbetterscores(highlights, random)
 
-def getAllScores(mpd=18):
+def getAllScores(mpd=18,dir='',app='dtw'):
     matchids = [m for (m,) in c.execute("select id from match order by id").fetchall()]
     a,b,e,d = 0,0,0,0
     cnt=0
+    invalid=0
     #matchids = [66078]
     for matchid in matchids:
         try:
             #print matchid
-            a1,b1,c1,d1 = getScores(matchid,mpd=mpd)
+            a1,b1,c1,d1 = getScores(matchid,mpd=mpd,dir=dir,app=app)
             if a1!=0 and c1!=0:
                 a+=a1;b+=b1;e+=c1;d+=d1
                 cnt+=1
         #except KeyBoardInterrupt:
         #    raise
         except:
-            pass
+            invalid += 1 
     #print cnt
+    print "invalid matches", invalid
     return a,b,e,d
 
 def getAllRandomScores():
@@ -206,12 +212,15 @@ def getAllRandomScores():
             pass
     return a,b,e,d
 
-scores = getAllScores(18)
+scores = getAllScores(18,dir="direct/",app="_naive")
 print(scores)
 print(getprrec(scores))
-scores = getAllRandomScores()
+scores = getScores(65042,mpd=18,dir="direct/",app="_naive")
 print(scores)
 print(getprrec(scores))
+# scores = getAllRandomScores()
+# print(scores)
+# print(getprrec(scores))
 #saveAllPredictions()
 #printPRandRecall(matchid)
 #randomPRandRecall(matchid)

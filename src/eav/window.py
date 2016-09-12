@@ -184,6 +184,7 @@ def getWindows(matchids):
     return windows
     
 if __name__ == '__main__':
+    pass
 #     windows = getAllWindows(0,1)
 #     cnt=0
 #     for window in windows:

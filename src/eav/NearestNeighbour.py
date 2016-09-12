@@ -31,7 +31,7 @@ class NearestNeighboursAbstract:
                 shots += dist if self.weighted else 1
         return shots/total
     
-    def predict_shotprobgoalprob(self,window,log=True):
+    def predict_shotprobgoalprob(self,window,log=True,direct=False):
         ''' Predict the probability of a shot happening in this window
         and the probability of a goal happening'''
         nn = self.search_k_nearest_neighbours(window,log)
@@ -43,16 +43,23 @@ class NearestNeighboursAbstract:
         for dist,neighbour in nn:
             weight = 1/dist if dist > 0 else 1
             total += weight if self.weighted else 1
-            if neighbour.is_shot():
-                x = neighbour.get_esv()
-                if not neighbour.is_defensive_error_shot():
-                    shotsdom += weight if self.weighted else 1
-                    goalsdom += weight*x if self.weighted else x
-                else:
-                    shotsoppo += weight if self.weighted else 1
-                    goalsoppo += weight*x if self.weighted else x
-        return (shotsdom/total,shotsoppo/total),\
-                (goalsdom/total,goalsoppo/total)
+            if direct:
+                if neighbour.is_goal():
+                    if not neighbour.is_defensive_error_goal():
+                        goalsdom += weight if self.weighted else 1
+                    else:
+                        goalsoppo += weight if self.weighted else 1
+            else:
+                if neighbour.is_shot():
+                    x = neighbour.get_esv()
+                    if not neighbour.is_defensive_error_shot():
+                        shotsdom += weight if self.weighted else 1
+                        goalsdom += weight*x if self.weighted else x
+                    else:
+                        shotsoppo += weight if self.weighted else 1
+                        goalsoppo += weight*x if self.weighted else x
+        return (float(shotsdom)/total,float(shotsoppo)/total),\
+                (float(goalsdom)/total,float(goalsoppo)/total)
     
 class NearestNeighboursBF(NearestNeighboursAbstract):
     def __init__(self,windows,k=100,weighted=True,dist = custom_dtw_distance):

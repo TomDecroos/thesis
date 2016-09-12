@@ -80,11 +80,11 @@ def plotPeaksMatch(mp,save = False,fignames = ['fig1','fig2']):
 
 def plotPeaksHalf(mp,half=1):
     times = getTimes(mp, half)
-    x1,x2 = getSmoothedValues(mp, half, lambda x:smooth(x,beta=4,window_len=11))
-    #x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=0.1))
+    #x1,x2 = getSmoothedValues(mp, half, lambda x:smooth(x,beta=4,window_len=11))
+    x1,x2 = getSmoothedValues(mp,half,lambda x:exp_smooth(x, alpha=0.2))
     x = [max(a,b) for a,b in zip(x1,x2)]
     m = [1 if a > b else -1 for a,b in zip(x1,x2)]
-    peaks = detectPeaks(x,mpd=11)
+    peaks = detectPeaks(x,mpd=18)
     #peaks = detect_peaks(x,mpd=10,mph=0.003)
     
     fig,ax = plt.subplots(1,1)
@@ -156,8 +156,10 @@ def plotSegment(mp,half=1,start=30,end=45,save = False,figname = 'segment'):
 
             
 if __name__ == '__main__':
-    matchid=66078
-    predictionsfile = '../../data/results/' + str(matchid) + '_dtw'
+    matchid=65042
+    app = "_naive"
+    folder = "direct/"
+    predictionsfile = '../../data/results/' + folder + str(matchid) + app
     #predictionsfile = '../../data/match_predictions/' \
     #+ str(matchid) + 'dtw10s_double.txt'
     predictions = np.loadtxt(predictionsfile)

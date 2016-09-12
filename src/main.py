@@ -15,8 +15,9 @@ import numpy as np
 
 c = DB.c
 
-def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
+def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0):
     (matchid,) = c.execute("select id from match order by id").fetchall()[matchnb]
+    folder = "direct" if direct else "indirect"
     
     if distancemetric == "dtw":
         dist = custom_dtw_distance
@@ -26,7 +27,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
         filename= (str(matchid) + "_naive")
         distancemetric = "naive"
     
-    print "Predicting flow of match %s with distancemetric %s" %(matchid,distancemetric)
+    print "Predicting flow of match %s with distancemetric %s and direct: %s" %(matchid,distancemetric,direct)
     
     logdict = dict()
     
@@ -50,7 +51,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
     def classify_match():
         results = []
         for window in testset:
-            result,classificationtime = logger.executeandtime(lambda:knn.predict_shotprobgoalprob(window))
+            result,classificationtime = logger.executeandtime(lambda:knn.predict_shotprobgoalprob(window,direct=direct))
             (shotprobdom,shotprobother),(goalprobdom,goalprobother) = result
                 
             is_shot = 0
@@ -67,7 +68,8 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
             fcb = 1 if dom_team == "32311" else 0 if dom_team == "None" else -1
             results.append([half,time,fcb,shotprobdom,shotprobother,is_shot,
                             goalprobdom,goalprobother,is_goal,classificationtime])
-            np.savetxt('../data/results/' + filename,results)
+                
+            np.savetxt('../data/results/' + folder + "/" + filename,results)
             tx = time //1000
             if half ==2:
                 tx+= 45*60
@@ -76,26 +78,30 @@ def predictmatchflow(matchnb,distancemetric = "dtw",v=0):
     
     foo,classifytime = logger.executeandtime(classify_match)
     logdict["match classification"] = classifytime
-    logfile = open("../data/logs/" + filename,"w+")
+    logfile = open("../data/logs/" + folder + "/" + filename,"w+")
     json.dump(logdict,logfile)
     print "Match", matchid, "classified and written to file", filename    
 
-def run_matches(matches):
+def run_matches(matches,dist_metric="naive",direct=False):
     for m in matches:
-        predictmatchflow(m,"naive",v=1)
+        predictmatchflow(m,dist_metric,v=1,direct=direct)
         #predictmatchflow(m, "dtw", v=1)
 
 if __name__ == '__main__':
     if sys.argv[1] == "multi":
-        start = int(sys.argv[2])
-        end = int(sys.argv[3])
-        run_matches(range(start,end))
+        dist_metric = sys.argv[2]
+        direct = sys.argv[3] == "direct"
+        start = int(sys.argv[4])
+        end = int(sys.argv[5])
+        run_matches(range(start,end),dist_metric,direct)
     else:
         if sys.argv[1] == "single":
-            matchnb = int(sys.argv[2])
-            dist_metric = sys.argv[3]
+            dist_metric = sys.argv[2]
+            direct = sys.argv[3] == "direct"
+            matchnb = int(sys.argv[4])
         else:
             matchnb = 0
             dist_metric = "naive"
-        predictmatchflow(matchnb,dist_metric,v=1)
+            direct = 0
+        predictmatchflow(matchnb,dist_metric,v=1,direct=direct)
         
