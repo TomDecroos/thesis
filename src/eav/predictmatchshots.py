@@ -23,7 +23,7 @@ resultsfile = str(matchid) + "dtw10s_double_noweights.txt"
 nnfun = lambda:NearestNeighboursVP(
         windows=trainset,
         k=100,
-        weighted=False,
+        weighted=True,
         dist=custom_dtw_distance)
 
 if new_model and os.path.isfile(knnfile):

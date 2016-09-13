@@ -7,7 +7,7 @@ Created on 17 Feb 2016
 #from tools.constants import Constant as C
 from eav.window import getAllWindows
 import tools.logger as logger
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from eav.VPTree import VPTree,get_nearest_neighbors
 from eav.windowDistance import custom_dtw_distance
 #from math import sqrt

@@ -4,7 +4,7 @@ Created on 16 Feb 2016
 @author: Temp
 '''
 
-from matplotlib.image import imread
+#from matplotlib.image import imread
 
 from db.prozoneDB import DB
 from eav.event import Event

@@ -3,7 +3,7 @@ Created on 17 May 2016
 
 @author: Tom
 '''
-import sys
+import sys,os
 from db.prozoneDB import DB
 from eav.windowDistance import custom_dtw_distance, naive_distance
 from tools import logger
@@ -15,9 +15,18 @@ import numpy as np
 
 c = DB.c
 
-def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0):
+def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0,k=100,resultsfolder="results"):
     (matchid,) = c.execute("select id from match order by id").fetchall()[matchnb]
     folder = "direct" if direct else "indirect"
+    if not os.path.exists('../data/' + resultsfolder):
+        os.makedirs('../data/' + resultsfolder)
+    if not os.path.exists('../data/' + resultsfolder + "/" + folder):
+        os.makedirs('../data/' + resultsfolder +"/"+folder)
+    if not os.path.exists('../data/logs/' + resultsfolder):
+        os.makedirs('../data/logs/' + resultsfolder)
+    if not os.path.exists('../data/logs/' + resultsfolder +"/"+folder):
+        os.makedirs('../data/logs/' + resultsfolder+"/"+folder)
+            
     
     if distancemetric == "dtw":
         dist = custom_dtw_distance
@@ -27,7 +36,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0):
         filename= (str(matchid) + "_naive")
         distancemetric = "naive"
     
-    print "Predicting flow of match %s with distancemetric %s and direct: %s" %(matchid,distancemetric,direct)
+    print "Predicting flow of match %s with distancemetric %s and direct: %s and k: %s and resultsfolder: %s"%(matchid,distancemetric,direct,k,resultsfolder)
     
     logdict = dict()
     
@@ -38,7 +47,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0):
     
     knn,constructclassifiertime = logger.executeandtime(lambda:NearestNeighboursVP(
         windows=trainset,
-        k=100,
+        k=k,
         weighted=True,
         dist=dist))
     logdict["construct classifier"] = constructclassifiertime
@@ -69,7 +78,7 @@ def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0):
             results.append([half,time,fcb,shotprobdom,shotprobother,is_shot,
                             goalprobdom,goalprobother,is_goal,classificationtime])
                 
-            np.savetxt('../data/results/' + folder + "/" + filename,results)
+            np.savetxt('../data/' + resultsfolder + "/" + folder + "/" + filename,results)
             tx = time //1000
             if half ==2:
                 tx+= 45*60
@@ -78,22 +87,24 @@ def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0):
     
     foo,classifytime = logger.executeandtime(classify_match)
     logdict["match classification"] = classifytime
-    logfile = open("../data/logs/" + folder + "/" + filename,"w+")
+    logfile = open('../data/logs/' + resultsfolder+ "/" + folder + "/" + filename,"w+")
     json.dump(logdict,logfile)
     print "Match", matchid, "classified and written to file", filename    
 
-def run_matches(matches,dist_metric="naive",direct=False):
+def run_matches(matches,dist_metric="naive",direct=False,k=100,resultsfolder='results'):
     for m in matches:
-        predictmatchflow(m,dist_metric,v=1,direct=direct)
+        predictmatchflow(m,dist_metric,v=1,direct=direct,k=k,resultsfolder=resultsfolder)
         #predictmatchflow(m, "dtw", v=1)
 
 if __name__ == '__main__':
     if sys.argv[1] == "multi":
         dist_metric = sys.argv[2]
         direct = sys.argv[3] == "direct"
-        start = int(sys.argv[4])
-        end = int(sys.argv[5])
-        run_matches(range(start,end),dist_metric,direct)
+        k = int(sys.argv[4])
+        resultsfolder = sys.argv[5]
+        start = int(sys.argv[6])
+        end = int(sys.argv[7])
+        run_matches(range(start,end),dist_metric,direct,k=k,resultsfolder=resultsfolder)
     else:
         if sys.argv[1] == "single":
             dist_metric = sys.argv[2]

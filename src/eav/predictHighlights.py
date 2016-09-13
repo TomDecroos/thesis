@@ -11,6 +11,7 @@ from tools.detect_peaks import detect_peaks
 from eav.plotMatchPredictions import getTimes, getSmoothedValues, detectPeaks
 from math import floor
 from db.prozoneDB import DB
+import matplotlib.pyplot as plt
 c = DB.c
 
 
@@ -133,6 +134,12 @@ def getprrec(scores):
         + "recall: " + str(recall) + "\n" \
         + "f-score: " + str(fscore)
 
+def fscore(scores):
+    precision = float(scores[1])/scores[0]
+    recall = float(scores[3])/scores[2]
+    fscore = 2 * (precision*recall) / (precision + recall)
+    return fscore
+
 def isinhighlights(p,highlights):
     m = round(p[0])
     for h in highlights:
@@ -163,7 +170,7 @@ def printhighlights(highlights,add=0):
 def getScores(matchid,fcb ='fcb',opp ='opp',mpd=18,dir='',app="_dtw"):
     highlightsfile= '../../data/ground_truth/match-' + str(matchid) + '.txt'
     highlights = read_highlights(highlightsfile, fcb, opp)
-    predictionsfile = '../../data/results/' + dir + str(matchid) + app
+    predictionsfile = '../../data/' + dir + str(matchid) + app
     mp = np.loadtxt(predictionsfile)
     pred = getpredictions(mp,mpd=mpd)
     return getbetterscores(highlights,pred)
@@ -186,6 +193,7 @@ def getAllScores(mpd=18,dir='',app='dtw'):
     cnt=0
     invalid=0
     #matchids = [66078]
+    
     for matchid in matchids:
         try:
             #print matchid
@@ -201,6 +209,28 @@ def getAllScores(mpd=18,dir='',app='dtw'):
     print "invalid matches", invalid
     return a,b,e,d
 
+def plotMatchFScores(mpd=18,dir='',app='dtw'):
+    matchids = [m for (m,) in c.execute("select id from match order by id").fetchall()]
+    a,b,e,d = 0,0,0,0
+    cnt=0
+    invalid=0
+    #matchids = [66078]
+    fscores = list()
+    for matchid in matchids:
+        try:
+            #print matchid
+            fscores.append(fscore(getScores(matchid,mpd=mpd,dir=dir,app=app)))
+        #except KeyBoardInterrupt:
+        #    raise
+        except:
+            invalid += 1 
+    #print cnt
+    print np.mean(fscores)
+    print np.std(fscores)
+    plt.hist(fscores)
+    plt.show()
+    print "invalid matches", invalid
+
 def getAllRandomScores():
     matchids = [m for (m,) in c.execute("select id from match order by id").fetchall()]
     a,b,e,d = 0,0,0,0
@@ -212,12 +242,18 @@ def getAllRandomScores():
             pass
     return a,b,e,d
 
-scores = getAllScores(18,dir="direct/",app="_naive")
+
+#scores = getScores(65042,mpd=18,dir="resultsk50/direct/",app="_naive")
+scores = getAllScores(18,dir="resultsk100/indirect/",app="_dtw")
 print(scores)
 print(getprrec(scores))
-scores = getScores(65042,mpd=18,dir="direct/",app="_naive")
+scores = getAllScores(18,dir="results/",app="_dtw")
 print(scores)
 print(getprrec(scores))
+
+#plotMatchFScores(18, "", app="_dtw")
+#plotMatchFScores(18, "results/", app="_dtw")
+
 # scores = getAllRandomScores()
 # print(scores)
 # print(getprrec(scores))

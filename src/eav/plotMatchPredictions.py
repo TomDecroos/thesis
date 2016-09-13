@@ -156,9 +156,9 @@ def plotSegment(mp,half=1,start=30,end=45,save = False,figname = 'segment'):
 
             
 if __name__ == '__main__':
-    matchid=65042
-    app = "_naive"
-    folder = "direct/"
+    matchid=71995
+    app = "_dtw"
+    folder = ""
     predictionsfile = '../../data/results/' + folder + str(matchid) + app
     #predictionsfile = '../../data/match_predictions/' \
     #+ str(matchid) + 'dtw10s_double.txt'
