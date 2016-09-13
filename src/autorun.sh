@@ -1,5 +1,5 @@
 function setcmd {
-smallcmd='screen -dm python main.py multi dtw '$smallercmd' 20 resultsk20'
+smallcmd='screen -dm python main.py multi dtw '$smallercmd' 10 resultsk10'
 CMD='cd thesis/src ; '
 CMD+=$smallcmd' '$1' '$2'; '
 CMD+=$smallcmd' '$2' '$3'; '
@@ -29,7 +29,7 @@ ssh himec02.cs.kuleuven.be $CMD
 setcmd 45 50 55 60
 ssh himec02.cs.kuleuven.be $CMD
 setcmd 60 63 66 69
-ssh pinac31.cs.kuleuven.be $CMD
+ssh pinac21.cs.kuleuven.be $CMD
 }
 
 function loadonpinacs1 {
@@ -59,8 +59,8 @@ ssh pinac23.cs.kuleuven.be $CMD
 }
 
 smallercmd='indirect'
-loadonpinacs1
+loadonhimec02
 
 smallercmd='direct'
-loadonpinacs2
+loadonhimec04
 
