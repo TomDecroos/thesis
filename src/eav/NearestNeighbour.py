@@ -3,7 +3,7 @@ Created on 17 Feb 2016
 
 @author: Temp
 '''
-#from eav.dtw import dtw
+#from tools.dtw import dtw
 #from tools.constants import Constant as C
 from eav.window import getAllWindows
 import tools.logger as logger
@@ -41,7 +41,7 @@ class NearestNeighboursAbstract:
         shotsoppo = 0
         goalsoppo = 0
         for dist,neighbour in nn:
-            weight = 1/dist if dist > 0 else 1
+            weight = dist if dist > 0 else 1
             total += weight if self.weighted else 1
             if direct:
                 if neighbour.is_goal():

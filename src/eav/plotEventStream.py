@@ -12,11 +12,8 @@ import eav.interpolation as ip
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-
-
-dbfile = '../prozone.db'
-conn = sqlite3.connect(dbfile)
-c = conn.cursor()
+from db.prozoneDB import DB
+c = DB.c
  
 
 matchid = 74204

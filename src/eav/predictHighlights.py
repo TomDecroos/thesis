@@ -244,10 +244,10 @@ def getAllRandomScores():
 
 
 #scores = getScores(65042,mpd=18,dir="resultsk50/direct/",app="_naive")
-scores = getAllScores(18,dir="resultsk100/indirect/",app="_dtw")
+scores = getAllScores(18,dir="resultsreverseweights/indirect/",app="_dtw")
 print(scores)
 print(getprrec(scores))
-scores = getAllScores(18,dir="results/",app="_dtw")
+scores = getAllScores(18,dir="resultsk100/indirect/",app="_dtw")
 print(scores)
 print(getprrec(scores))
 

@@ -1,9 +1,10 @@
 function setcmd {
-smallcmd='screen -dm python main.py multi dtw '$smallercmd' 10 resultsk10'
+smallcmd='screen -dm python main.py annotated dtw 100 resultsreverseweights'
 CMD='cd thesis/src ; '
 CMD+=$smallcmd' '$1' '$2'; '
 CMD+=$smallcmd' '$2' '$3'; '
 CMD+=$smallcmd' '$3' '$4'; '
+CMD+=$smallcmd' '$4' '$5'; '
 }
 
 function loadonhimec04 {
@@ -33,16 +34,16 @@ ssh pinac21.cs.kuleuven.be $CMD
 }
 
 function loadonpinacs1 {
-setcmd 0 5 10 15
+setcmd 0 3 6 9 12
 ssh pinac38.cs.kuleuven.be $CMD
-setcmd 15 20 25 30
-ssh pinac37.cs.kuleuven.be $CMD
-setcmd 30 35 40 45
+setcmd 12 15 18 21 25
 ssh pinac39.cs.kuleuven.be $CMD
-setcmd 45 50 55 60
-ssh pinac33.cs.kuleuven.be $CMD
-setcmd 60 63 66 69
-ssh pinac24.cs.kuleuven.be $CMD
+#setcmd 30 35 40 45
+#ssh pinac34.cs.kuleuven.be $CMD
+#setcmd 45 50 55 60
+#ssh pinac33.cs.kuleuven.be $CMD
+#setcmd 60 63 66 69
+#ssh pinac32.cs.kuleuven.be $CMD
 }
 
 function loadonpinacs2 {
@@ -58,9 +59,11 @@ setcmd 60 63 66 69
 ssh pinac23.cs.kuleuven.be $CMD
 }
 
-smallercmd='indirect'
-loadonhimec02
+loadonpinacs1
 
-smallercmd='direct'
-loadonhimec04
+#smallercmd='indirect'
+#loadonhimec02
+
+#smallercmd='direct'
+#loadonhimec04
 

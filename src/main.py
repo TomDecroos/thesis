@@ -15,8 +15,7 @@ import numpy as np
 
 c = DB.c
 
-def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0,k=100,resultsfolder="results"):
-    (matchid,) = c.execute("select id from match order by id").fetchall()[matchnb]
+def predictmatchflow(matchid,distancemetric = "dtw",direct=False,v=0,k=100,resultsfolder="results"):
     folder = "direct" if direct else "indirect"
     if not os.path.exists('../data/' + resultsfolder):
         os.makedirs('../data/' + resultsfolder)
@@ -92,11 +91,25 @@ def predictmatchflow(matchnb,distancemetric = "dtw",direct=False,v=0,k=100,resul
     print "Match", matchid, "classified and written to file", filename    
 
 def run_matches(matches,dist_metric="naive",direct=False,k=100,resultsfolder='results'):
-    for m in matches:
-        predictmatchflow(m,dist_metric,v=1,direct=direct,k=k,resultsfolder=resultsfolder)
+    for matchnb in matches:
+        (matchid,) = c.execute("select id from match order by id").fetchall()[matchnb]
+        predictmatchflow(matchid,dist_metric,v=1,direct=direct,k=k,resultsfolder=resultsfolder)
         #predictmatchflow(m, "dtw", v=1)
+        
+def run_annotated_matches(nbs,dist_metric="naive",direct=False,k=100,resultsfolder='results'):
+    for matchnb in nbs:
+        matchid = get_annotated_matches()[matchnb]
+        predictmatchflow(matchid,dist_metric,v=1,direct=direct,k=k,resultsfolder=resultsfolder)
 
-if __name__ == '__main__':
+def get_annotated_matches():
+    matchids = map(lambda x:x[0],c.execute("select id from match order by id"))
+    return filter(is_annotated,matchids)
+    
+def is_annotated(matchid):
+    matchfile = '../data/ground_truth/match-%s.txt'%matchid
+    return sum(map(lambda x:1,open(matchfile))) > 10
+    
+def execute_cmd():
     if sys.argv[1] == "multi":
         dist_metric = sys.argv[2]
         direct = sys.argv[3] == "direct"
@@ -105,14 +118,22 @@ if __name__ == '__main__':
         start = int(sys.argv[6])
         end = int(sys.argv[7])
         run_matches(range(start,end),dist_metric,direct,k=k,resultsfolder=resultsfolder)
-    else:
-        if sys.argv[1] == "single":
+    elif sys.argv[1] == "single":
             dist_metric = sys.argv[2]
             direct = sys.argv[3] == "direct"
             matchnb = int(sys.argv[4])
-        else:
-            matchnb = 0
-            dist_metric = "naive"
-            direct = 0
+    elif sys.argv[1] == "annotated":
+        dist_metric = sys.argv[2]
+        k = int(sys.argv[3])
+        folder = sys.argv[4]
+        start = int(sys.argv[5])
+        end = int(sys.argv[6])
+        run_annotated_matches(range(start,end), dist_metric, direct=False, k=k,resultsfolder=folder)
+    else:
+        matchnb = 0
+        dist_metric = "naive"
+        direct = 0
         predictmatchflow(matchnb,dist_metric,v=1,direct=direct)
         
+if __name__ == '__main__':
+    execute_cmd()

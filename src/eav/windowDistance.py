@@ -5,7 +5,7 @@ Created on 1 Mar 2016
 '''
 
 from tools.constants import Constant as C
-from eav.dtw import dtw
+from tools import dtw.dtw
 
 
 def custom_dtw_distance(window1,window2):
